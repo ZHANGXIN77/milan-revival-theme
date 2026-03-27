@@ -14,13 +14,21 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
+      - name: 安装 lftp
+        run: sudo apt-get install -y lftp
+
       - name: 通过 SFTP 部署主题到 GoDaddy
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          port: 22
-          source: "./"
-          target: "wp-content/themes/milan-revival-theme"
-          rm: false
+        run: |
+          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" \
+            -e "set sftp:connect-program \'ssh -p 22 -o StrictHostKeyChecking=no\'; \
+                mirror -R --verbose \
+                  --exclude=\'.git.*\' \
+                  --exclude=\'.github/\' \
+                  --exclude=\'DEPLOYMENT_GUIDE.md\' \
+                  . wp-content/themes/milan-revival-theme/; \
+                quit" \
+            sftp://$SFTP_HOST
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
