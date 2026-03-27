@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>复活节联合崇拜 - 在场</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #111;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .poster {
+    width: 1080px;
+    height: 1920px;
+    position: relative;
+    overflow: hidden;
+    background: #08090c;
+  }
+
+  /* ===== BACKGROUND SVG SCENE ===== */
+  .scene-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scene-bg svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Hopeful dawn glow overlays — added cool-white core for cold/warm contrast */
+  .glow-hope {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 25% 14% at 50% 48%, rgba(220, 240, 255, 0.13) 0%, transparent 100%),
+      radial-gradient(ellipse 55% 30% at 50% 48%, rgba(255, 225, 150, 0.22) 0%, transparent 100%),
+      radial-gradient(ellipse 40% 20% at 50% 50%, rgba(255, 245, 220, 0.12) 0%, transparent 100%),
+      radial-gradient(ellipse 80% 50% at 50% 44%, rgba(220, 180, 100, 0.08) 0%, transparent 100%);
+    z-index: 2;
+  }
+
+  /* Particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 235, 180, 0.8), transparent 70%);
+    animation: drift 10s ease-in-out infinite;
+  }
+
+  .particle:nth-child(1)  { width: 5px;  height: 5px;  top: 28%; left: 22%; animation-delay: 0s;   animation-duration: 9s; }
+  .particle:nth-child(2)  { width: 8px;  height: 8px;  top: 36%; left: 68%; animation-delay: 1s;   animation-duration: 11s; }
+  .particle:nth-child(3)  { width: 4px;  height: 4px;  top: 44%; left: 30%; animation-delay: 2.5s; animation-duration: 8s; }
+  .particle:nth-child(4)  { width: 6px;  height: 6px;  top: 32%; left: 52%; animation-delay: 0.7s; animation-duration: 10s; }
+  .particle:nth-child(5)  { width: 10px; height: 10px; top: 40%; left: 78%; animation-delay: 3s;   animation-duration: 12s; }
+  .particle:nth-child(6)  { width: 7px;  height: 7px;  top: 22%; left: 45%; animation-delay: 1.5s; animation-duration: 8s; }
+  .particle:nth-child(7)  { width: 3px;  height: 3px;  top: 50%; left: 40%; animation-delay: 4s;   animation-duration: 9s; }
+  .particle:nth-child(8)  { width: 6px;  height: 6px;  top: 26%; left: 62%; animation-delay: 0.3s; animation-duration: 10s; }
+  .particle:nth-child(9)  { width: 4px;  height: 4px;  top: 48%; left: 56%; animation-delay: 2s;   animation-duration: 7s; }
+  .particle:nth-child(10) { width: 5px;  height: 5px;  top: 35%; left: 36%; animation-delay: 3.5s; animation-duration: 11s; }
+  .particle:nth-child(11) { width: 8px;  height: 8px;  top: 42%; left: 48%; animation-delay: 1.2s; animation-duration: 9.5s; }
+  .particle:nth-child(12) { width: 3px;  height: 3px;  top: 30%; left: 82%; animation-delay: 2.8s; animation-duration: 8.5s; }
+
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.25; }
+    40% { transform: translateY(-18px) translateX(6px) scale(1.4); opacity: 0.75; }
+    70% { transform: translateY(-10px) translateX(-4px) scale(1.1); opacity: 0.45; }
+  }
+
+  /* Vignette - lighter to preserve hope */
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 46%, transparent 35%, rgba(6, 7, 10, 0.65) 100%);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Grain */
+  .grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Top label */
+  .event-label {
+    margin-top: 88px;
+    text-align: center;
+  }
+
+  .churches {
+    font-weight: 300;
+    font-size: 26px;
+    color: rgba(210, 200, 185, 0.55);
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+
+  .event-type {
+    font-weight: 400;
+    font-size: 30px;
+    color: rgba(225, 215, 195, 0.72);
+    letter-spacing: 6px;
+  }
+
+  /* Easter line */
+  .easter-line {
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .el-bar {
+    width: 70px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 195, 140, 0.45));
+  }
+
+  .el-bar.r {
+    background: linear-gradient(90deg, rgba(220, 195, 140, 0.45), transparent);
+  }
+
+  .el-text {
+    font-weight: 300;
+    font-size: 22px;
+    color: rgba(220, 195, 140, 0.55);
+    letter-spacing: 10px;
+  }
+
+  /* ===== OVERLAPPING TITLE ===== */
+  .title-area {
+    position: relative;
+    width: 560px;
+    height: 370px;
+    margin-top: 90px;
+  }
+
+  .title-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 520px;
+    height: 420px;
+    background: radial-gradient(ellipse, rgba(255, 220, 130, 0.14) 0%, transparent 70%);
+    filter: blur(45px);
+  }
+
+  .char {
+    font-family: 'Zhi Mang Xing', 'Ma Shan Zheng', cursive;
+    font-weight: 400;
+    font-size: 300px;
+    line-height: 1;
+    position: absolute;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .char-zai {
+    left: 10px;
+    top: 8px;
+    background-image: linear-gradient(155deg, #fff8e8 0%, #f0d890 25%, #dbb560 50%, #c49540 80%, #a87830 100%);
+    z-index: 2;
+    filter: drop-shadow(0 0 50px rgba(255, 220, 130, 0.2));
+  }
+
+  .char-chang {
+    left: 205px;
+    top: 58px;
+    background-image: linear-gradient(155deg, #fef5e0 0%, #e8c878 25%, #cba048 50%, #a88030 80%, #8a6525 100%);
+    z-index: 1;
+    filter: drop-shadow(0 0 45px rgba(255, 210, 120, 0.15));
+  }
+
+  .char-zai-stroke {
+    left: 10px;
+    top: 8px;
+    z-index: 3;
+    -webkit-text-stroke: 1.5px rgba(255, 240, 200, 0.08);
+    color: transparent;
+    background: none;
+    pointer-events: none;
+  }
+
+  /* English accent under title */
+  .title-en {
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .title-en-bar {
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 195, 140, 0.3));
+  }
+
+  .title-en-bar.r {
+    background: linear-gradient(90deg, rgba(220, 195, 140, 0.3), transparent);
+  }
+
+  .title-en-text {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    font-size: 17px;
+    letter-spacing: 9px;
+    color: rgba(210, 190, 145, 0.42);
+    text-transform: uppercase;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    margin-top: 38px;
+    text-align: center;
+  }
+
+  .subtitle-text {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 38px;
+    color: rgba(240, 225, 195, 0.85);
+    letter-spacing: 5px;
+  }
+
+  /* Divider */
+  .divider {
+    margin-top: 38px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .div-line {
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 195, 140, 0.35));
+  }
+
+  .div-line.r {
+    background: linear-gradient(90deg, rgba(220, 195, 140, 0.35), transparent);
+  }
+
+  .div-dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(220, 195, 140, 0.45);
+    transform: rotate(45deg);
+  }
+
+  /* Messages */
+  .messages {
+    margin-top: 42px;
+    text-align: center;
+  }
+
+  .msg {
+    margin-bottom: 0;
+    padding: 28px 0;
+  }
+
+  .msg-num {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: rgba(200, 160, 80, 0.45);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .msg-title {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    font-size: 34px;
+    color: rgba(240, 225, 195, 0.82);
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .msg-speaker {
+    font-weight: 300;
+    font-size: 24px;
+    color: rgba(210, 190, 145, 0.5);
+    letter-spacing: 2px;
+  }
+
+  .msg-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 auto;
+    width: 320px;
+  }
+
+  .msg-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 160, 80, 0.2));
+  }
+
+  .msg-divider-line.r {
+    background: linear-gradient(90deg, rgba(200, 160, 80, 0.2), transparent);
+  }
+
+  .msg-divider-cross {
+    font-size: 14px;
+    color: rgba(200, 160, 80, 0.3);
+    letter-spacing: 0;
+  }
+
+  /* Scripture verse */
+  .scripture {
+    margin-top: 35px;
+    text-align: center;
+    max-width: 900px;
+    padding: 0 40px;
+    white-space: nowrap;
+  }
+
+  .scripture-text {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 400;
+    font-size: 22px;
+    color: rgba(225, 215, 195, 0.55);
+    letter-spacing: 1.5px;
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  .scripture-ref {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: rgba(210, 190, 145, 0.38);
+    letter-spacing: 2px;
+    margin-top: 10px;
+  }
+
+  /* Bottom info */
+  .info {
+    position: absolute;
+    bottom: 85px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+  }
+
+  .info-date {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 900;
+    font-size: 56px;
+    color: rgba(245, 232, 200, 0.92);
+    letter-spacing: 6px;
+    margin-bottom: 20px;
+  }
+
+  .info-weekday {
+    font-weight: 400;
+    font-size: 24px;
+    color: rgba(210, 190, 145, 0.55);
+    letter-spacing: 5px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .info-time {
+    font-weight: 600;
+    font-size: 36px;
+    color: rgba(240, 225, 195, 0.85);
+    letter-spacing: 4px;
+    margin-bottom: 24px;
+  }
+
+  .info-sep {
+    width: 50px;
+    height: 1px;
+    background: rgba(220, 195, 140, 0.3);
+    margin: 0 auto 24px;
+  }
+
+  .info-loc {
+    font-weight: 400;
+    font-size: 23px;
+    color: rgba(210, 190, 145, 0.5);
+    letter-spacing: 1.5px;
+  }
+
+  .info-schedule {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 6px auto 22px;
+    border-top: 1px solid rgba(200, 160, 80, 0.12);
+    border-bottom: 1px solid rgba(200, 160, 80, 0.12);
+    padding: 16px 0;
+    width: 560px;
+  }
+
+  .sched-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 36px;
+    border-right: 1px solid rgba(200, 160, 80, 0.15);
+  }
+
+  .sched-item:last-child {
+    border-right: none;
+  }
+
+  .sched-time {
+    font-weight: 400;
+    font-size: 20px;
+    color: rgba(200, 160, 80, 0.6);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .sched-name {
+    font-weight: 300;
+    font-size: 22px;
+    color: rgba(225, 210, 180, 0.7);
+    letter-spacing: 4px;
+  }
+
+  .info-note {
+    font-weight: 300;
+    font-size: 21px;
+    color: rgba(210, 190, 145, 0.35);
+    letter-spacing: 3px;
+    margin-top: 18px;
+  }
+
+  /* QR Code */
+  .qr-section {
+    position: absolute;
+    bottom: 100px;
+    right: 80px;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qr-box {
+    width: 130px;
+    height: 130px;
+    background: rgba(255, 252, 245, 0.92);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  .qr-box svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .qr-label {
+    font-weight: 300;
+    font-size: 18px;
+    color: rgba(210, 190, 145, 0.5);
+    letter-spacing: 2px;
+  }
+
+  /* Frame */
+  .frame {
+    position: absolute;
+    inset: 36px;
+    border: 1px solid rgba(220, 200, 160, 0.07);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .corner {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    z-index: 21;
+    pointer-events: none;
+  }
+
+  .corner::before, .corner::after {
+    content: '';
+    position: absolute;
+    background: rgba(220, 200, 160, 0.2);
+  }
+
+  .corner::before { width: 26px; height: 1px; }
+  .corner::after  { width: 1px; height: 26px; }
+
+  .corner.tl { top: 34px; left: 34px; }
+  .corner.tl::before { top: 0; left: 0; }
+  .corner.tl::after  { top: 0; left: 0; }
+
+  .corner.tr { top: 34px; right: 34px; }
+  .corner.tr::before { top: 0; right: 0; }
+  .corner.tr::after  { top: 0; right: 0; }
+
+  .corner.bl { bottom: 34px; left: 34px; }
+  .corner.bl::before { bottom: 0; left: 0; }
+  .corner.bl::after  { bottom: 0; left: 0; }
+
+  .corner.br { bottom: 34px; right: 34px; }
+  .corner.br::before { bottom: 0; right: 0; }
+  .corner.br::after  { bottom: 0; right: 0; }
+</style>
+</head>
+<body>
+
+<div class="poster">
+
+  <!-- ===== BACKGROUND SCENE ===== -->
+  <div class="scene-bg">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <!-- Hopeful dawn sky - deep indigo to golden peach -->
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#080a12"/>
+          <stop offset="12%"  stop-color="#0e1220"/>
+          <stop offset="22%"  stop-color="#1a1e38"/>
+          <stop offset="30%"  stop-color="#2a2850"/>
+          <stop offset="36%"  stop-color="#3d3060"/>
+          <stop offset="41%"  stop-color="#5a3858"/>
+          <stop offset="45%"  stop-color="#7a4548"/>
+          <stop offset="48%"  stop-color="#a86040"/>
+          <stop offset="51%"  stop-color="#c88040"/>
+          <stop offset="54%"  stop-color="#daa048"/>
+          <stop offset="57%"  stop-color="#e0b858"/>
+          <stop offset="60%"  stop-color="#c89040"/>
+          <stop offset="66%"  stop-color="#7a4838"/>
+          <stop offset="75%"  stop-color="#2a1810"/>
+          <stop offset="100%" stop-color="#0a0806"/>
+        </linearGradient>
+
+        <!-- Sun - rising behind tomb -->
+        <radialGradient id="sunDisc" cx="50%" cy="49%" r="6%">
+          <stop offset="0%"  stop-color="#fffbe8" stop-opacity="0.85"/>
+          <stop offset="40%" stop-color="#f5d880" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#f5d880" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="sunHalo1" cx="50%" cy="49%" r="16%">
+          <stop offset="0%"  stop-color="#ffe8a0" stop-opacity="0.3"/>
+          <stop offset="50%" stop-color="#e0b050" stop-opacity="0.1"/>
+          <stop offset="100%" stop-color="#e0b050" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="sunHalo2" cx="50%" cy="49%" r="28%">
+          <stop offset="0%"  stop-color="#ffd878" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#ffd878" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Tomb interior warm light -->
+        <radialGradient id="tombInner" cx="50%" cy="35%" r="55%">
+          <stop offset="0%"  stop-color="#fffdf0" stop-opacity="0.95"/>
+          <stop offset="30%" stop-color="#f5d898" stop-opacity="0.65"/>
+          <stop offset="70%" stop-color="#c89040" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#0a0806" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Light spill from tomb -->
+        <radialGradient id="tombSpill" cx="50%" cy="20%" r="80%" fx="50%" fy="10%">
+          <stop offset="0%"  stop-color="#fff5d8" stop-opacity="0.65"/>
+          <stop offset="40%" stop-color="#f0d080" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#f0d080" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Hill fills -->
+        <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#3a2a30"/>
+          <stop offset="100%" stop-color="#1a1018"/>
+        </linearGradient>
+
+        <linearGradient id="hillMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#281810"/>
+          <stop offset="100%" stop-color="#100a08"/>
+        </linearGradient>
+
+        <linearGradient id="hillFront" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#181008"/>
+          <stop offset="100%" stop-color="#0a0806"/>
+        </linearGradient>
+
+        <!-- Stone gradient -->
+        <linearGradient id="stoneGrad" x1="0.3" y1="0" x2="0.8" y2="1">
+          <stop offset="0%"  stop-color="#2a1e14"/>
+          <stop offset="50%" stop-color="#1e1410"/>
+          <stop offset="100%" stop-color="#14100c"/>
+        </linearGradient>
+
+        <filter id="blur3"><feGaussianBlur stdDeviation="3"/></filter>
+        <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+        <filter id="blur12"><feGaussianBlur stdDeviation="12"/></filter>
+        <filter id="blur20"><feGaussianBlur stdDeviation="20"/></filter>
+
+        <!-- Cloth wrap linen texture -->
+        <pattern id="linenTexture" width="6" height="6" patternUnits="userSpaceOnUse">
+          <rect width="6" height="6" fill="none"/>
+          <line x1="0" y1="3" x2="6" y2="3" stroke="#d8c8a0" stroke-width="0.3" opacity="0.15"/>
+        </pattern>
+      </defs>
+
+      <!-- ===== SKY ===== -->
+      <rect width="1080" height="1920" fill="url(#sky)"/>
+
+      <!-- Stars - fading in the dawn -->
+      <g fill="#d0c8e0" opacity="0.2">
+        <circle cx="90"  cy="60"  r="1.5"/>
+        <circle cx="250" cy="35"  r="1"/>
+        <circle cx="410" cy="90"  r="1.3"/>
+        <circle cx="540" cy="25"  r="1.2"/>
+        <circle cx="700" cy="55"  r="1.5"/>
+        <circle cx="830" cy="80"  r="1"/>
+        <circle cx="970" cy="30"  r="1.3"/>
+        <circle cx="180" cy="150" r="0.8"/>
+        <circle cx="620" cy="130" r="1"/>
+        <circle cx="900" cy="160" r="0.8"/>
+        <circle cx="350" cy="180" r="0.7"/>
+        <circle cx="780" cy="200" r="0.9"/>
+      </g>
+      <g fill="#c8c0d8" opacity="0.1">
+        <circle cx="150" cy="250" r="0.8"/>
+        <circle cx="480" cy="220" r="0.7"/>
+        <circle cx="1020" cy="120" r="1"/>
+        <circle cx="60"  cy="300" r="0.6"/>
+        <circle cx="950" cy="280" r="0.7"/>
+      </g>
+
+      <!-- Thin cloud wisps in upper sky -->
+      <g opacity="0.06" filter="url(#blur6)">
+        <ellipse cx="300" cy="200" rx="200" ry="8" fill="#a090c0"/>
+        <ellipse cx="750" cy="160" rx="180" ry="6" fill="#a090c0"/>
+        <ellipse cx="500" cy="280" rx="250" ry="10" fill="#9080b0"/>
+        <ellipse cx="150" cy="320" rx="140" ry="7" fill="#8070a0"/>
+      </g>
+
+      <!-- Dawn color bands at horizon -->
+      <g opacity="0.15" filter="url(#blur12)">
+        <rect x="0" y="830" width="1080" height="60" fill="#e0a050"/>
+        <rect x="0" y="800" width="1080" height="40" fill="#d08848"/>
+        <rect x="0" y="870" width="1080" height="50" fill="#c07840"/>
+      </g>
+
+      <!-- Sun disc & halos -->
+      <rect width="1080" height="1920" fill="url(#sunHalo2)"/>
+      <rect width="1080" height="1920" fill="url(#sunHalo1)"/>
+      <rect width="1080" height="1920" fill="url(#sunDisc)"/>
+
+      <!-- Cool-white inner halo for cold/warm contrast at sun core -->
+      <circle cx="540" cy="940" r="45" fill="#e0ecff" opacity="0.08" filter="url(#blur12)"/>
+      <circle cx="540" cy="940" r="20" fill="#ffffff" opacity="0.06" filter="url(#blur6)"/>
+
+      <!-- God rays from sun -->
+      <g opacity="0.12" filter="url(#blur3)">
+        <polygon points="540,900 490,200 510,200" fill="#ffd878"/>
+        <polygon points="540,900 560,100 585,100" fill="#ffd878" opacity="0.8"/>
+        <polygon points="540,900 680,150 710,150" fill="#ffd878" opacity="0.6"/>
+        <polygon points="540,900 350,180 380,180" fill="#ffd878" opacity="0.7"/>
+        <polygon points="540,900 180,300 210,300" fill="#ffd878" opacity="0.4"/>
+        <polygon points="540,900 850,250 880,250" fill="#ffd878" opacity="0.35"/>
+        <polygon points="540,900 0,450 0,500"     fill="#ffd878" opacity="0.2"/>
+        <polygon points="540,900 1080,400 1080,450" fill="#ffd878" opacity="0.2"/>
+      </g>
+
+      <!-- Upward rays (hope rising) -->
+      <g opacity="0.06" filter="url(#blur6)">
+        <polygon points="540,900 440,1920 480,1920" fill="#ffd878"/>
+        <polygon points="540,900 600,1920 640,1920" fill="#ffd878"/>
+        <polygon points="540,900 280,1920 320,1920" fill="#ffd878" opacity="0.5"/>
+        <polygon points="540,900 760,1920 800,1920" fill="#ffd878" opacity="0.5"/>
+      </g>
+
+      <!-- ===== DISTANT HILLS ===== -->
+      <path d="M0,860 Q100,820 220,840 Q350,790 450,810 Q540,780 630,800 Q750,770 860,810 Q970,790 1080,830 L1080,950 L0,950 Z"
+            fill="url(#hillFar)" opacity="0.85"/>
+
+      <!-- Three crosses on far hill - silhouette against dawn -->
+      <g opacity="0.35">
+        <g transform="translate(740, 785)">
+          <rect x="-5" y="-90" width="10" height="115" fill="#1a1018" rx="2"/>
+          <rect x="-30" y="-70" width="60" height="8" fill="#1a1018" rx="2"/>
+        </g>
+        <g transform="translate(680, 800)">
+          <rect x="-4" y="-65" width="8" height="88" fill="#1a1018" rx="1.5" transform="rotate(-4)"/>
+          <rect x="-22" y="-50" width="44" height="6" fill="#1a1018" rx="1.5" transform="rotate(-4)"/>
+        </g>
+        <g transform="translate(800, 798)">
+          <rect x="-4" y="-68" width="8" height="90" fill="#1a1018" rx="1.5" transform="rotate(3)"/>
+          <rect x="-22" y="-52" width="44" height="6" fill="#1a1018" rx="1.5" transform="rotate(3)"/>
+        </g>
+      </g>
+
+      <!-- ===== MIDDLE HILLS ===== -->
+      <path d="M0,910 Q130,880 260,895 Q380,860 460,880 Q530,868 540,870 Q550,868 620,880 Q700,860 820,895 Q940,878 1080,905 L1080,1020 L0,1020 Z"
+            fill="url(#hillMid)" opacity="0.95"/>
+
+      <!-- ===== EMPTY TOMB (LARGE & PROMINENT) ===== -->
+      <g transform="translate(540, 905)">
+
+        <!-- Rocky cliff face around tomb -->
+        <path d="M-120,-60 Q-110,-100 -80,-110 Q-40,-125 0,-120 Q40,-125 80,-110 Q110,-100 120,-60 Q125,-20 115,30 Q100,60 80,70 L-80,70 Q-100,60 -115,30 Q-125,-20 -120,-60 Z"
+              fill="#1a1210" opacity="0.9"/>
+
+        <!-- Rock texture on cliff -->
+        <g stroke="#251a12" stroke-width="1" fill="none" opacity="0.4">
+          <path d="M-90,-80 Q-70,-90 -50,-75"/>
+          <path d="M40,-85 Q65,-95 85,-78"/>
+          <path d="M-100,-30 Q-85,-35 -70,-28"/>
+          <path d="M80,-25 Q95,-32 108,-22"/>
+          <path d="M-70,20 Q-50,15 -35,22"/>
+          <path d="M50,25 Q70,18 90,26"/>
+        </g>
+
+        <!-- Tomb opening - deep dark arch -->
+        <ellipse cx="0" cy="-10" rx="60" ry="72" fill="#060404"/>
+
+        <!-- BRIGHT LIGHT pouring from inside the tomb -->
+        <ellipse cx="0" cy="-15" rx="52" ry="64" fill="url(#tombInner)"/>
+
+        <!-- Extra bright core light -->
+        <ellipse cx="0" cy="-20" rx="30" ry="40" fill="#fff8e0" opacity="0.38" filter="url(#blur6)"/>
+
+        <!-- Cool-white holy light core — cold/warm contrast -->
+        <ellipse cx="0" cy="-22" rx="18" ry="26" fill="#e8f0ff" opacity="0.42" filter="url(#blur6)"/>
+        <ellipse cx="0" cy="-25" rx="8" ry="12" fill="#ffffff" opacity="0.35" filter="url(#blur3)"/>
+
+        <!-- Light beam coming out of tomb entrance — stronger now that figure is absent -->
+        <g filter="url(#blur12)">
+          <polygon points="-40,-50 40,-50 110,-220 -110,-220" fill="#fff5d0" opacity="0.14"/>
+          <polygon points="-20,-55 20,-55 55,-220 -55,-220" fill="#fffbe8" opacity="0.10"/>
+        </g>
+
+        <!-- Extra wide atmospheric halo around tomb opening -->
+        <ellipse cx="0" cy="-10" rx="90" ry="110" fill="#f5d870" opacity="0.07" filter="url(#blur20)"/>
+
+        <!-- Light spill on ground in front of tomb — broader without figure -->
+        <ellipse cx="0" cy="65" rx="160" ry="45" fill="#fff5d0" opacity="0.14" filter="url(#blur20)"/>
+        <ellipse cx="0" cy="55" rx="90" ry="28" fill="#fff8e0" opacity="0.10" filter="url(#blur12)"/>
+
+        <!-- Rolled-away stone - to the right -->
+        <g transform="translate(85, 10)">
+          <ellipse cx="0" cy="0" rx="48" ry="56" fill="url(#stoneGrad)" stroke="#2a1e14" stroke-width="1.5"/>
+          <!-- Stone details -->
+          <ellipse cx="0" cy="0" rx="42" ry="50" fill="#18120e" opacity="0.5"/>
+          <path d="M-30,-15 Q0,-20 30,-12" stroke="#2a1e14" stroke-width="1" fill="none" opacity="0.5"/>
+          <path d="M-25,10 Q5,8 28,14" stroke="#2a1e14" stroke-width="1" fill="none" opacity="0.4"/>
+          <path d="M-20,-35 Q0,-38 20,-32" stroke="#2a1e14" stroke-width="0.8" fill="none" opacity="0.3"/>
+        </g>
+
+        <!-- Linen cloth draped at entrance -->
+        <g opacity="0.25">
+          <path d="M-45,40 Q-40,20 -30,35 Q-20,50 -10,30 Q0,15 5,40"
+                stroke="#d8c8a0" stroke-width="2" fill="none"/>
+          <path d="M-48,42 Q-35,55 -20,48 Q-5,42 8,50"
+                stroke="#d8c8a0" stroke-width="1.5" fill="none" opacity="0.6"/>
+        </g>
+
+
+        <!-- Small plants near tomb entrance -->
+        <g opacity="0.4">
+          <path d="M-70,60 Q-68,48 -65,55 Q-63,42 -60,58" stroke="#2a3018" stroke-width="1.5" fill="none"/>
+          <path d="M75,55 Q78,42 80,52 Q83,38 85,50" stroke="#2a3018" stroke-width="1.5" fill="none"/>
+        </g>
+      </g>
+
+      <!-- ===== VEGETATION ===== -->
+      <!-- Trees left -->
+      <g opacity="0.4">
+        <g transform="translate(90, 880)">
+          <rect x="-5" y="-45" width="10" height="65" fill="#14100c" rx="3"/>
+          <ellipse cx="0" cy="-60" rx="42" ry="32" fill="#14100c"/>
+          <ellipse cx="-15" cy="-72" rx="25" ry="18" fill="#14100c"/>
+          <ellipse cx="20" cy="-55" rx="22" ry="16" fill="#14100c"/>
+        </g>
+        <g transform="translate(200, 900)">
+          <rect x="-4" y="-32" width="8" height="48" fill="#120e0a" rx="2"/>
+          <ellipse cx="0" cy="-44" rx="32" ry="24" fill="#120e0a"/>
+          <ellipse cx="14" cy="-54" rx="18" ry="14" fill="#120e0a"/>
+        </g>
+      </g>
+
+      <!-- Trees right -->
+      <g opacity="0.35">
+        <g transform="translate(940, 888)">
+          <rect x="-6" y="-50" width="12" height="68" fill="#14100c" rx="3"/>
+          <ellipse cx="0" cy="-66" rx="48" ry="35" fill="#14100c"/>
+          <ellipse cx="22" cy="-78" rx="26" ry="20" fill="#14100c"/>
+          <ellipse cx="-20" cy="-60" rx="22" ry="16" fill="#14100c"/>
+        </g>
+        <g transform="translate(1030, 905)">
+          <rect x="-3" y="-28" width="7" height="42" fill="#120e0a" rx="2"/>
+          <ellipse cx="0" cy="-38" rx="24" ry="20" fill="#120e0a"/>
+        </g>
+      </g>
+
+      <!-- Small bushes -->
+      <g opacity="0.35">
+        <ellipse cx="370" cy="935" rx="28" ry="12" fill="#14100c"/>
+        <ellipse cx="720" cy="930" rx="22" ry="10" fill="#14100c"/>
+        <ellipse cx="310" cy="945" rx="16" ry="8" fill="#100e0a"/>
+        <ellipse cx="800" cy="940" rx="18" ry="9" fill="#100e0a"/>
+      </g>
+
+      <!-- ===== FOREGROUND HILL ===== -->
+      <path d="M0,960 Q180,935 360,945 Q480,930 540,935 Q600,930 720,945 Q900,935 1080,955 L1080,1920 L0,1920 Z"
+            fill="url(#hillFront)"/>
+
+      <!-- Path leading toward viewer from tomb -->
+      <g opacity="0.1">
+        <path d="M540,1920 Q535,1500 537,1200 Q539,1050 540,960"
+              stroke="#181410" stroke-width="50" fill="none" stroke-linecap="round" filter="url(#blur6)"/>
+      </g>
+
+      <!-- Foreground grass tufts -->
+      <g stroke="#1a1410" stroke-width="1.5" opacity="0.25" fill="none">
+        <path d="M120,968 Q125,955 128,965 Q132,952 136,966"/>
+        <path d="M350,958 Q354,946 358,956 Q362,944 365,955"/>
+        <path d="M600,955 Q605,942 608,953 Q612,940 616,952"/>
+        <path d="M850,962 Q854,950 858,960 Q862,948 866,958"/>
+        <path d="M480,960 Q484,948 487,958"/>
+        <path d="M720,957 Q724,944 728,955"/>
+        <path d="M200,965 Q204,952 207,963"/>
+        <path d="M950,968 Q955,955 958,965"/>
+      </g>
+
+      <!-- Wildflowers in foreground (subtle hope symbols) -->
+      <g opacity="0.2">
+        <circle cx="160" cy="970" r="3" fill="#e8c880"/>
+        <circle cx="165" cy="968" r="2.5" fill="#e0c070"/>
+        <circle cx="420" cy="962" r="2.5" fill="#e8c880"/>
+        <circle cx="680" cy="958" r="3" fill="#e0c070"/>
+        <circle cx="900" cy="965" r="2" fill="#e8c880"/>
+        <circle cx="280" cy="972" r="2" fill="#e0c070"/>
+        <circle cx="780" cy="963" r="2.5" fill="#e8c880"/>
+      </g>
+
+      <!-- Horizon glow emphasised -->
+      <g filter="url(#blur20)" opacity="0.12">
+        <rect x="0" y="860" width="1080" height="30" fill="#ffd068"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Overlays -->
+  <div class="glow-hope"></div>
+  <div class="particles">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+  <div class="vignette"></div>
+
+  <!-- Frame -->
+  <div class="frame"></div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+    <div class="event-label">
+      <div class="churches">米兰复兴教会 · 意大利华人复兴教会北部牧区</div>
+      <div class="event-type">北部复活节联合崇拜暨圣洗礼</div>
+    </div>
+
+    <div class="easter-line">
+      <div class="el-bar"></div>
+      <div class="el-text">EASTER</div>
+      <div class="el-bar r"></div>
+    </div>
+
+    <!-- Overlapping title -->
+    <div class="title-area">
+      <div class="title-glow"></div>
+      <span class="char char-zai">在</span>
+      <span class="char char-chang">场</span>
+      <span class="char char-zai-stroke">在</span>
+      <div class="title-en">
+        <div class="title-en-bar"></div>
+        <span class="title-en-text">He Is Present</span>
+        <div class="title-en-bar r"></div>
+      </div>
+    </div>
+
+    <div class="subtitle">
+      <div class="subtitle-text">复活的基督，比你想象的更近</div>
+    </div>
+
+    <div class="divider">
+      <div class="div-line"></div>
+      <div class="div-dot"></div>
+      <div class="div-line r"></div>
+    </div>
+
+    <div class="messages">
+      <div class="msg">
+        <div class="msg-num">— 信息 · 壹 —</div>
+        <div class="msg-title">《你以为祂不在》</div>
+        <div class="msg-speaker">黄爱敏牧师</div>
+      </div>
+      <div class="msg-divider">
+        <div class="msg-divider-line"></div>
+        <div class="msg-divider-cross">✦</div>
+        <div class="msg-divider-line r"></div>
+      </div>
+      <div class="msg">
+        <div class="msg-num">— 信息 · 贰 —</div>
+        <div class="msg-title">《活在耶稣复活的世界里》</div>
+        <div class="msg-speaker">胡道勇传道</div>
+      </div>
+    </div>
+
+    <div class="scripture">
+      <div class="scripture-text">复活在我，生命也在我；信我的人，虽然死了，也必复活。</div>
+      <div class="scripture-ref">— 约翰福音 11:25</div>
+    </div>
+  </div>
+
+  <!-- Bottom info -->
+  <div class="info">
+    <div class="info-date">2026.4.6</div>
+<div class="info-schedule">
+      <div class="sched-item">
+        <span class="sched-time">11:00 – 12:00</span>
+        <span class="sched-name">圣洗礼</span>
+      </div>
+      <div class="sched-item">
+        <span class="sched-time">13:00 – 14:20</span>
+        <span class="sched-name">培灵会</span>
+      </div>
+    </div>
+    <div class="info-sep"></div>
+    <div class="info-loc">Via Camillo Ugoni 20, 20158 Milano</div>
+    <div class="info-note">欢迎邀请亲友一同参加</div>
+  </div>
+
+  <!-- QR Code - bottom right -->
+  <div class="qr-section">
+    <div class="qr-box">
+      <svg viewBox="0 0 29 29" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <rect width="29" height="29" fill="none"/>
+        <path fill="#1a1210" d="M0,0h1v1h-1z M1,0h1v1h-1z M2,0h1v1h-1z M3,0h1v1h-1z M4,0h1v1h-1z M5,0h1v1h-1z M6,0h1v1h-1z M9,0h1v1h-1z M11,0h1v1h-1z M12,0h1v1h-1z M13,0h1v1h-1z M14,0h1v1h-1z M16,0h1v1h-1z M19,0h1v1h-1z M22,0h1v1h-1z M23,0h1v1h-1z M24,0h1v1h-1z M25,0h1v1h-1z M26,0h1v1h-1z M27,0h1v1h-1z M28,0h1v1h-1z M0,1h1v1h-1z M6,1h1v1h-1z M8,1h1v1h-1z M9,1h1v1h-1z M10,1h1v1h-1z M11,1h1v1h-1z M12,1h1v1h-1z M14,1h1v1h-1z M15,1h1v1h-1z M18,1h1v1h-1z M19,1h1v1h-1z M20,1h1v1h-1z M22,1h1v1h-1z M28,1h1v1h-1z M0,2h1v1h-1z M2,2h1v1h-1z M3,2h1v1h-1z M4,2h1v1h-1z M6,2h1v1h-1z M9,2h1v1h-1z M12,2h1v1h-1z M13,2h1v1h-1z M14,2h1v1h-1z M18,2h1v1h-1z M20,2h1v1h-1z M22,2h1v1h-1z M24,2h1v1h-1z M25,2h1v1h-1z M26,2h1v1h-1z M28,2h1v1h-1z M0,3h1v1h-1z M2,3h1v1h-1z M3,3h1v1h-1z M4,3h1v1h-1z M6,3h1v1h-1z M9,3h1v1h-1z M10,3h1v1h-1z M12,3h1v1h-1z M13,3h1v1h-1z M14,3h1v1h-1z M15,3h1v1h-1z M16,3h1v1h-1z M18,3h1v1h-1z M22,3h1v1h-1z M24,3h1v1h-1z M25,3h1v1h-1z M26,3h1v1h-1z M28,3h1v1h-1z M0,4h1v1h-1z M2,4h1v1h-1z M3,4h1v1h-1z M4,4h1v1h-1z M6,4h1v1h-1z M8,4h1v1h-1z M9,4h1v1h-1z M10,4h1v1h-1z M11,4h1v1h-1z M12,4h1v1h-1z M14,4h1v1h-1z M15,4h1v1h-1z M16,4h1v1h-1z M18,4h1v1h-1z M19,4h1v1h-1z M22,4h1v1h-1z M24,4h1v1h-1z M25,4h1v1h-1z M26,4h1v1h-1z M28,4h1v1h-1z M0,5h1v1h-1z M6,5h1v1h-1z M9,5h1v1h-1z M13,5h1v1h-1z M15,5h1v1h-1z M17,5h1v1h-1z M18,5h1v1h-1z M19,5h1v1h-1z M22,5h1v1h-1z M28,5h1v1h-1z M0,6h1v1h-1z M1,6h1v1h-1z M2,6h1v1h-1z M3,6h1v1h-1z M4,6h1v1h-1z M5,6h1v1h-1z M6,6h1v1h-1z M8,6h1v1h-1z M10,6h1v1h-1z M12,6h1v1h-1z M14,6h1v1h-1z M16,6h1v1h-1z M18,6h1v1h-1z M20,6h1v1h-1z M22,6h1v1h-1z M23,6h1v1h-1z M24,6h1v1h-1z M25,6h1v1h-1z M26,6h1v1h-1z M27,6h1v1h-1z M28,6h1v1h-1z M11,7h1v1h-1z M12,7h1v1h-1z M13,7h1v1h-1z M14,7h1v1h-1z M15,7h1v1h-1z M17,7h1v1h-1z M18,7h1v1h-1z M19,7h1v1h-1z M20,7h1v1h-1z M0,8h1v1h-1z M2,8h1v1h-1z M4,8h1v1h-1z M6,8h1v1h-1z M10,8h1v1h-1z M11,8h1v1h-1z M14,8h1v1h-1z M15,8h1v1h-1z M16,8h1v1h-1z M17,8h1v1h-1z M18,8h1v1h-1z M19,8h1v1h-1z M20,8h1v1h-1z M24,8h1v1h-1z M27,8h1v1h-1z M1,9h1v1h-1z M2,9h1v1h-1z M3,9h1v1h-1z M5,9h1v1h-1z M7,9h1v1h-1z M9,9h1v1h-1z M14,9h1v1h-1z M16,9h1v1h-1z M20,9h1v1h-1z M22,9h1v1h-1z M25,9h1v1h-1z M28,9h1v1h-1z M2,10h1v1h-1z M3,10h1v1h-1z M4,10h1v1h-1z M5,10h1v1h-1z M6,10h1v1h-1z M8,10h1v1h-1z M10,10h1v1h-1z M11,10h1v1h-1z M12,10h1v1h-1z M13,10h1v1h-1z M17,10h1v1h-1z M21,10h1v1h-1z M22,10h1v1h-1z M24,10h1v1h-1z M26,10h1v1h-1z M27,10h1v1h-1z M28,10h1v1h-1z M1,11h1v1h-1z M2,11h1v1h-1z M8,11h1v1h-1z M11,11h1v1h-1z M12,11h1v1h-1z M15,11h1v1h-1z M17,11h1v1h-1z M18,11h1v1h-1z M20,11h1v1h-1z M27,11h1v1h-1z M3,12h1v1h-1z M5,12h1v1h-1z M6,12h1v1h-1z M7,12h1v1h-1z M8,12h1v1h-1z M9,12h1v1h-1z M12,12h1v1h-1z M17,12h1v1h-1z M18,12h1v1h-1z M19,12h1v1h-1z M20,12h1v1h-1z M21,12h1v1h-1z M22,12h1v1h-1z M23,12h1v1h-1z M25,12h1v1h-1z M27,12h1v1h-1z M28,12h1v1h-1z M0,13h1v1h-1z M1,13h1v1h-1z M2,13h1v1h-1z M3,13h1v1h-1z M4,13h1v1h-1z M5,13h1v1h-1z M9,13h1v1h-1z M10,13h1v1h-1z M11,13h1v1h-1z M13,13h1v1h-1z M15,13h1v1h-1z M16,13h1v1h-1z M18,13h1v1h-1z M21,13h1v1h-1z M22,13h1v1h-1z M25,13h1v1h-1z M28,13h1v1h-1z M0,14h1v1h-1z M1,14h1v1h-1z M3,14h1v1h-1z M4,14h1v1h-1z M6,14h1v1h-1z M7,14h1v1h-1z M9,14h1v1h-1z M10,14h1v1h-1z M11,14h1v1h-1z M12,14h1v1h-1z M14,14h1v1h-1z M16,14h1v1h-1z M18,14h1v1h-1z M22,14h1v1h-1z M23,14h1v1h-1z M24,14h1v1h-1z M25,14h1v1h-1z M27,14h1v1h-1z M28,14h1v1h-1z M0,15h1v1h-1z M1,15h1v1h-1z M3,15h1v1h-1z M4,15h1v1h-1z M7,15h1v1h-1z M8,15h1v1h-1z M10,15h1v1h-1z M11,15h1v1h-1z M12,15h1v1h-1z M13,15h1v1h-1z M14,15h1v1h-1z M15,15h1v1h-1z M16,15h1v1h-1z M17,15h1v1h-1z M19,15h1v1h-1z M20,15h1v1h-1z M21,15h1v1h-1z M22,15h1v1h-1z M25,15h1v1h-1z M27,15h1v1h-1z M3,16h1v1h-1z M6,16h1v1h-1z M7,16h1v1h-1z M14,16h1v1h-1z M16,16h1v1h-1z M19,16h1v1h-1z M20,16h1v1h-1z M21,16h1v1h-1z M22,16h1v1h-1z M23,16h1v1h-1z M25,16h1v1h-1z M27,16h1v1h-1z M28,16h1v1h-1z M1,17h1v1h-1z M3,17h1v1h-1z M4,17h1v1h-1z M5,17h1v1h-1z M11,17h1v1h-1z M12,17h1v1h-1z M14,17h1v1h-1z M16,17h1v1h-1z M20,17h1v1h-1z M21,17h1v1h-1z M22,17h1v1h-1z M25,17h1v1h-1z M26,17h1v1h-1z M28,17h1v1h-1z M0,18h1v1h-1z M2,18h1v1h-1z M3,18h1v1h-1z M6,18h1v1h-1z M7,18h1v1h-1z M8,18h1v1h-1z M9,18h1v1h-1z M10,18h1v1h-1z M11,18h1v1h-1z M12,18h1v1h-1z M13,18h1v1h-1z M16,18h1v1h-1z M17,18h1v1h-1z M21,18h1v1h-1z M22,18h1v1h-1z M23,18h1v1h-1z M27,18h1v1h-1z M28,18h1v1h-1z M1,19h1v1h-1z M2,19h1v1h-1z M5,19h1v1h-1z M7,19h1v1h-1z M8,19h1v1h-1z M9,19h1v1h-1z M10,19h1v1h-1z M11,19h1v1h-1z M15,19h1v1h-1z M16,19h1v1h-1z M17,19h1v1h-1z M18,19h1v1h-1z M20,19h1v1h-1z M24,19h1v1h-1z M25,19h1v1h-1z M27,19h1v1h-1z M0,20h1v1h-1z M2,20h1v1h-1z M4,20h1v1h-1z M6,20h1v1h-1z M7,20h1v1h-1z M10,20h1v1h-1z M11,20h1v1h-1z M17,20h1v1h-1z M19,20h1v1h-1z M20,20h1v1h-1z M21,20h1v1h-1z M22,20h1v1h-1z M23,20h1v1h-1z M24,20h1v1h-1z M8,21h1v1h-1z M9,21h1v1h-1z M10,21h1v1h-1z M13,21h1v1h-1z M16,21h1v1h-1z M17,21h1v1h-1z M18,21h1v1h-1z M19,21h1v1h-1z M20,21h1v1h-1z M24,21h1v1h-1z M26,21h1v1h-1z M27,21h1v1h-1z M28,21h1v1h-1z M0,22h1v1h-1z M1,22h1v1h-1z M2,22h1v1h-1z M3,22h1v1h-1z M4,22h1v1h-1z M5,22h1v1h-1z M6,22h1v1h-1z M9,22h1v1h-1z M14,22h1v1h-1z M17,22h1v1h-1z M19,22h1v1h-1z M20,22h1v1h-1z M22,22h1v1h-1z M24,22h1v1h-1z M25,22h1v1h-1z M27,22h1v1h-1z M28,22h1v1h-1z M0,23h1v1h-1z M6,23h1v1h-1z M10,23h1v1h-1z M11,23h1v1h-1z M13,23h1v1h-1z M14,23h1v1h-1z M15,23h1v1h-1z M16,23h1v1h-1z M17,23h1v1h-1z M20,23h1v1h-1z M24,23h1v1h-1z M25,23h1v1h-1z M27,23h1v1h-1z M0,24h1v1h-1z M2,24h1v1h-1z M3,24h1v1h-1z M4,24h1v1h-1z M6,24h1v1h-1z M8,24h1v1h-1z M9,24h1v1h-1z M14,24h1v1h-1z M17,24h1v1h-1z M20,24h1v1h-1z M21,24h1v1h-1z M22,24h1v1h-1z M23,24h1v1h-1z M24,24h1v1h-1z M27,24h1v1h-1z M28,24h1v1h-1z M0,25h1v1h-1z M2,25h1v1h-1z M3,25h1v1h-1z M4,25h1v1h-1z M6,25h1v1h-1z M9,25h1v1h-1z M11,25h1v1h-1z M12,25h1v1h-1z M14,25h1v1h-1z M15,25h1v1h-1z M16,25h1v1h-1z M17,25h1v1h-1z M18,25h1v1h-1z M20,25h1v1h-1z M21,25h1v1h-1z M23,25h1v1h-1z M24,25h1v1h-1z M26,25h1v1h-1z M27,25h1v1h-1z M28,25h1v1h-1z M0,26h1v1h-1z M2,26h1v1h-1z M3,26h1v1h-1z M4,26h1v1h-1z M6,26h1v1h-1z M8,26h1v1h-1z M9,26h1v1h-1z M11,26h1v1h-1z M14,26h1v1h-1z M17,26h1v1h-1z M18,26h1v1h-1z M20,26h1v1h-1z M23,26h1v1h-1z M24,26h1v1h-1z M25,26h1v1h-1z M28,26h1v1h-1z M0,27h1v1h-1z M6,27h1v1h-1z M9,27h1v1h-1z M10,27h1v1h-1z M11,27h1v1h-1z M12,27h1v1h-1z M13,27h1v1h-1z M17,27h1v1h-1z M19,27h1v1h-1z M20,27h1v1h-1z M22,27h1v1h-1z M27,27h1v1h-1z M0,28h1v1h-1z M1,28h1v1h-1z M2,28h1v1h-1z M3,28h1v1h-1z M4,28h1v1h-1z M5,28h1v1h-1z M6,28h1v1h-1z M8,28h1v1h-1z M9,28h1v1h-1z M10,28h1v1h-1z M11,28h1v1h-1z M12,28h1v1h-1z M14,28h1v1h-1z M15,28h1v1h-1z M16,28h1v1h-1z M19,28h1v1h-1z M20,28h1v1h-1z M25,28h1v1h-1z M27,28h1v1h-1z M28,28h1v1h-1z"/>
+      </svg>
+    </div>
+    <div class="qr-label">YouTube 直播</div>
+  </div>
+
+  <div class="grain"></div>
+</div>
+
+</body>
+</html>
