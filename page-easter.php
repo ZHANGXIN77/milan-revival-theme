@@ -97,8 +97,8 @@ get_header();
                     <div class="timeline-item">
                         <div class="timeline-time">13:30</div>
                         <div class="timeline-content">
-                            <h4>献诗</h4>
-                            <p>米兰诗班</p>
+                            <h4>献诗《来主墓前》Come to the Tomb</h4>
+                            <p>米兰喜乐音诗班</p>
                         </div>
                     </div>
                     <div class="timeline-item timeline-item-highlight">
@@ -119,7 +119,7 @@ get_header();
                     <div class="timeline-item">
                         <div class="timeline-time">14:50</div>
                         <div class="timeline-content">
-                            <h4>主日学</h4>
+                            <h4>主日学舞台秀</h4>
                         </div>
                     </div>
                     <div class="timeline-item timeline-item-break">
@@ -136,7 +136,7 @@ get_header();
                     <div class="timeline-item timeline-item-highlight">
                         <div class="timeline-time">15:15</div>
                         <div class="timeline-content">
-                            <h4>主题信息《活在那个早晨之后》</h4>
+                            <h4>主题信息《活在耶稣复活的世界里》</h4>
                             <p>胡道勇传道</p>
                             <span class="timeline-scripture">经文：腓立比书 3:7-11 / 罗马书 8:9-11</span>
                         </div>
