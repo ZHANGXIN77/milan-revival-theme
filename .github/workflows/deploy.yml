@@ -14,19 +14,30 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装 lftp 和 sshpass
-        run: sudo apt-get install -y lftp sshpass
+      - name: 安装 lftp
+        run: sudo apt-get install -y lftp
 
-      - name: 通过 SFTP 部署主题到 GoDaddy
+      - name: 调试 - 检查并上传文件
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
           SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         run: |
-          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" sftp://$SFTP_HOST <<EOF
+          echo "=== 调试部署 ==="
+          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" sftp://$SFTP_HOST <<'SCRIPT'
           set sftp:auto-confirm yes
           set net:timeout 30
           set net:max-retries 3
-          mirror -R --verbose --overwrite --no-perms --exclude-glob .git* --exclude-glob .github/ . dom1113878/wp-content/themes/milan-revival-theme/
+          echo "--- PWD ---"
+          pwd
+          echo "--- 尝试 cd dom1113878 ---"
+          cd dom1113878/wp-content/themes/milan-revival-theme
+          pwd
+          ls -la front-page.php
+          echo "--- 用 put 上传 front-page.php ---"
+          put front-page.php
+          ls -la front-page.php
+          echo "--- 完成 ---"
           bye
-          EOF
+          SCRIPT
+          echo "=== 结束 ==="
