@@ -14,30 +14,26 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装 lftp
-        run: sudo apt-get install -y lftp
+      - name: 安装工具
+        run: sudo apt-get install -y sshpass lftp
 
-      - name: 调试 - 检查并上传文件
+      - name: 调试目录结构
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
           SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         run: |
-          echo "=== 调试部署 ==="
-          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" sftp://$SFTP_HOST <<'SCRIPT'
-          set sftp:auto-confirm yes
-          set net:timeout 30
-          set net:max-retries 3
-          echo "--- PWD ---"
+          echo "=== 使用 sftp 命令调试 ==="
+          sshpass -p "$SFTP_PASSWORD" sftp -oBatchMode=no -oStrictHostKeyChecking=no "$SFTP_USERNAME@$SFTP_HOST" <<'SFTP_CMDS'
           pwd
-          echo "--- 尝试 cd dom1113878 ---"
-          cd dom1113878/wp-content/themes/milan-revival-theme
+          ls
+          cd dom1113878/wp-content/themes
+          ls
+          cd milan-revival-theme
           pwd
-          ls -la front-page.php
-          echo "--- 用 put 上传 front-page.php ---"
+          ls
           put front-page.php
-          ls -la front-page.php
-          echo "--- 完成 ---"
+          ls
           bye
-          SCRIPT
-          echo "=== 结束 ==="
+          SFTP_CMDS
+          echo "=== sftp 完成 ==="
