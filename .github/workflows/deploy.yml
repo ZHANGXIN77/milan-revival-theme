@@ -27,10 +27,6 @@ jobs:
           set sftp:auto-confirm yes
           set net:timeout 30
           set net:max-retries 3
-          pwd
-          ls
-          ls dom1113878/ || echo "no dom1113878 dir"
-          ls wp-content/themes/ || echo "no wp-content/themes dir"
-          mirror -R --verbose --exclude-glob .git* --exclude-glob .github/ . wp-content/themes/milan-revival-theme/
+          mirror -R --verbose --exclude-glob .git* --exclude-glob .github/ . dom1113878/wp-content/themes/milan-revival-theme/
           bye
           EOF
