@@ -390,6 +390,167 @@ function milan_revival_visitor_form() {
 add_action('wp_ajax_visitor_form', 'milan_revival_visitor_form');
 add_action('wp_ajax_nopriv_visitor_form', 'milan_revival_visitor_form');
 
+// ========== Pastoral System REST API ==========
+define('PASTORAL_PASTOR_EMAIL', 'zanmeizhixin@gmail.com');
+
+function pastoral_get_authorized_users() {
+    $users = get_option('pastoral_authorized_users', array());
+    // 确保牧区长始终在列表中
+    $pastor_email = PASTORAL_PASTOR_EMAIL;
+    if (!isset($users[$pastor_email])) {
+        $users[$pastor_email] = array('role' => 'pastor', 'name' => '');
+    }
+    return $users;
+}
+
+function pastoral_api_get_users() {
+    return rest_ensure_response(pastoral_get_authorized_users());
+}
+
+function pastoral_api_update_user($request) {
+    $body = $request->get_json_params();
+    $credential = $request->get_header('X-Google-Credential');
+
+    // 验证请求者是牧区长
+    if (!$credential || !pastoral_verify_pastor($credential)) {
+        return new WP_Error('unauthorized', '无权限操作', array('status' => 403));
+    }
+
+    $email = sanitize_email($body['email'] ?? '');
+    $action = sanitize_text_field($body['action'] ?? '');
+
+    if (empty($email)) {
+        return new WP_Error('bad_request', '缺少邮箱', array('status' => 400));
+    }
+
+    // 不允许修改牧区长自身
+    if ($email === PASTORAL_PASTOR_EMAIL && $action === 'remove') {
+        return new WP_Error('forbidden', '不能移除牧区长', array('status' => 403));
+    }
+
+    $users = pastoral_get_authorized_users();
+
+    if ($action === 'remove') {
+        unset($users[$email]);
+    } else {
+        $role = sanitize_text_field($body['role'] ?? 'youth');
+        $name = sanitize_text_field($body['name'] ?? '');
+        $group_id = isset($body['groupId']) ? intval($body['groupId']) : null;
+        $users[$email] = array('role' => $role, 'name' => $name);
+        if ($group_id) {
+            $users[$email]['groupId'] = $group_id;
+        }
+    }
+
+    update_option('pastoral_authorized_users', $users);
+    return rest_ensure_response($users);
+}
+
+// 登录时注册用户（任何 Google 用户都可以请求，但未授权的只被记录为 pending）
+function pastoral_api_register($request) {
+    $body = $request->get_json_params();
+    $email = sanitize_email($body['email'] ?? '');
+    $name = sanitize_text_field($body['name'] ?? '');
+    $avatar = esc_url_raw($body['avatar'] ?? '');
+
+    if (empty($email)) {
+        return new WP_Error('bad_request', '缺少邮箱', array('status' => 400));
+    }
+
+    $users = pastoral_get_authorized_users();
+
+    // 已授权用户：返回其角色
+    if (isset($users[$email])) {
+        $user_data = $users[$email];
+        // 更新名字和头像
+        $user_data['name'] = $name ?: ($user_data['name'] ?? '');
+        $user_data['avatar'] = $avatar;
+        $users[$email] = $user_data;
+        update_option('pastoral_authorized_users', $users);
+        return rest_ensure_response(array('authorized' => true, 'user' => $user_data));
+    }
+
+    // 未授权：记录到待审核列表
+    $pending = get_option('pastoral_pending_users', array());
+    $pending[$email] = array('name' => $name, 'avatar' => $avatar, 'time' => current_time('mysql'));
+    update_option('pastoral_pending_users', $pending);
+
+    return rest_ensure_response(array('authorized' => false));
+}
+
+// 获取待审核用户列表（仅牧区长）
+function pastoral_api_get_pending($request) {
+    $credential = $request->get_header('X-Google-Credential');
+    if (!$credential || !pastoral_verify_pastor($credential)) {
+        return new WP_Error('unauthorized', '无权限', array('status' => 403));
+    }
+    $pending = get_option('pastoral_pending_users', array());
+    return rest_ensure_response($pending);
+}
+
+// 审批待审核用户（仅牧区长）
+function pastoral_api_approve($request) {
+    $credential = $request->get_header('X-Google-Credential');
+    if (!$credential || !pastoral_verify_pastor($credential)) {
+        return new WP_Error('unauthorized', '无权限', array('status' => 403));
+    }
+
+    $body = $request->get_json_params();
+    $email = sanitize_email($body['email'] ?? '');
+    $role = sanitize_text_field($body['role'] ?? 'youth');
+    $action = sanitize_text_field($body['action'] ?? 'approve');
+
+    $pending = get_option('pastoral_pending_users', array());
+
+    if ($action === 'approve' && isset($pending[$email])) {
+        $users = pastoral_get_authorized_users();
+        $users[$email] = array(
+            'role' => $role,
+            'name' => $pending[$email]['name'] ?? '',
+        );
+        if (isset($body['groupId'])) {
+            $users[$email]['groupId'] = intval($body['groupId']);
+        }
+        update_option('pastoral_authorized_users', $users);
+    }
+
+    unset($pending[$email]);
+    update_option('pastoral_pending_users', $pending);
+
+    return rest_ensure_response(array('success' => true));
+}
+
+// 验证 Google JWT 中的邮箱是否为牧区长
+function pastoral_verify_pastor($credential) {
+    $parts = explode('.', $credential);
+    if (count($parts) !== 3) return false;
+    $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+    if (!$payload || empty($payload['email'])) return false;
+    return strtolower($payload['email']) === PASTORAL_PASTOR_EMAIL;
+}
+
+// 注册 REST 路由
+add_action('rest_api_init', function () {
+    $ns = 'pastoral/v1';
+
+    register_rest_route($ns, '/users', array(
+        array('methods' => 'GET', 'callback' => 'pastoral_api_get_users', 'permission_callback' => '__return_true'),
+        array('methods' => 'POST', 'callback' => 'pastoral_api_update_user', 'permission_callback' => '__return_true'),
+    ));
+
+    register_rest_route($ns, '/register', array(
+        array('methods' => 'POST', 'callback' => 'pastoral_api_register', 'permission_callback' => '__return_true'),
+    ));
+
+    register_rest_route($ns, '/pending', array(
+        array('methods' => 'GET', 'callback' => 'pastoral_api_get_pending', 'permission_callback' => '__return_true'),
+    ));
+
+    register_rest_route($ns, '/approve', array(
+        array('methods' => 'POST', 'callback' => 'pastoral_api_approve', 'permission_callback' => '__return_true'),
+    ));
+});
+
 // ========== Remove Unnecessary WordPress Features ==========
 function milan_revival_cleanup() {
     remove_action('wp_head', 'wp_generator');

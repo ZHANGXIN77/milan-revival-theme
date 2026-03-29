@@ -11,6 +11,7 @@ const NAV_PASTOR = [
   { path: '/groups', label: '小组管理' },
   { path: '/meetings', label: '聚会安排' },
   { path: '/profile', label: '我的主页' },
+  { path: '/user-management', label: '用户管理' },
 ];
 
 const NAV_LEADER = [
@@ -85,7 +86,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* User info */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Avatar name={user?.name} size={38} />
+          <Avatar name={user?.name} src={user?.avatar} size={38} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.name}</div>
             <div style={{ fontSize: 11, color: 'var(--color-accent)', marginTop: 2 }}>{roleLabel}</div>

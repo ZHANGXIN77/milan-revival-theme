@@ -11,6 +11,7 @@ import PrayerRequests from './pages/PrayerRequests';
 import GroupManagement from './pages/GroupManagement';
 import YouthProfile from './pages/YouthProfile';
 import Meetings from './pages/Meetings';
+import UserManagement from './pages/UserManagement';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
@@ -64,6 +65,11 @@ function AppRoutes() {
       <Route path="/profile" element={
         <ProtectedRoute>
           <Layout><YouthProfile /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/user-management" element={
+        <ProtectedRoute allowedRoles={['pastor']}>
+          <Layout><UserManagement /></Layout>
         </ProtectedRoute>
       } />
     </Routes>
