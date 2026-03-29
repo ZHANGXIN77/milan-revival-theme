@@ -6,34 +6,48 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: SFTP 部署到 GoDaddy
+  build-and-deploy:
+    name: 构建并部署到 GoDaddy
     runs-on: ubuntu-latest
 
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装工具
-        run: sudo apt-get install -y sshpass lftp
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: 调试目录结构
+      - name: 构建牧养系统
+        working-directory: pastoral-system
+        run: |
+          npm install
+          npm run build
+
+      - name: 安装 lftp
+        run: sudo apt-get install -y lftp
+
+      - name: 部署到 GoDaddy
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
           SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         run: |
-          echo "=== 使用 sftp 命令调试 ==="
-          sshpass -p "$SFTP_PASSWORD" sftp -oBatchMode=no -oStrictHostKeyChecking=no "$SFTP_USERNAME@$SFTP_HOST" <<'SFTP_CMDS'
-          pwd
-          ls
-          cd dom1113878/wp-content/themes
-          ls
-          cd milan-revival-theme
-          pwd
-          ls
-          put front-page.php
-          ls
-          bye
-          SFTP_CMDS
-          echo "=== sftp 完成 ==="
+          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" sftp://$SFTP_HOST -e "
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            mirror --reverse --delete --verbose \
+              --exclude=^\.git/ \
+              --exclude=^\.github/ \
+              --exclude=^pastoral-system/src/ \
+              --exclude=^pastoral-system/node_modules/ \
+              --exclude=^pastoral-system/public/ \
+              --exclude=^pastoral-system/package\\.json \
+              --exclude=^pastoral-system/package-lock\\.json \
+              --exclude=^pastoral-system/vite\\.config\\.js \
+              --exclude=^pastoral-system/eslint\\.config\\.js \
+              --exclude=^pastoral-system/index\\.html \
+              --exclude=^pastoral-system/README\\.md \
+              . /dom1113878/wp-content/themes/milan-revival-theme;
+            quit;"

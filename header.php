@@ -26,6 +26,7 @@
                 <li><a href="<?php echo esc_url($visit_url); ?>">初次来访</a></li>
         <?php $giving_page = get_page_by_path('giving'); $giving_url = $giving_page ? get_permalink($giving_page->ID) : home_url('/giving/'); ?>
                 <li><a href="<?php echo esc_url($giving_url); ?>">线上奉献</a></li>
+        <li><a href="<?php echo esc_url(get_template_directory_uri()); ?>/pastoral-system/dist/index.html">牧养系统</a></li>
     </ul>
 </div>
 
@@ -54,6 +55,7 @@
                 <li><a href="<?php echo esc_url($visit_url); ?>">初次来访</a></li>
                 <?php $giving_page = get_page_by_path('giving'); $giving_url = $giving_page ? get_permalink($giving_page->ID) : home_url('/giving/'); ?>
                 <li><a href="<?php echo esc_url($giving_url); ?>">线上奉献</a></li>
+                <li><a href="<?php echo esc_url(get_template_directory_uri()); ?>/pastoral-system/dist/index.html">牧养系统</a></li>
             </ul>
         </nav>
 
