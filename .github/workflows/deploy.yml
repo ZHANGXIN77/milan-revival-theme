@@ -49,5 +49,6 @@ jobs:
               --exclude=^pastoral-system/eslint\\.config\\.js \
               --exclude=^pastoral-system/index\\.html \
               --exclude=^pastoral-system/README\\.md \
-              . /dom1113878/wp-content/themes/milan-revival-theme;
+              --exclude=^pastoral-system/\\.gitignore \
+              . dom1113878/wp-content/themes/milan-revival-theme;
             quit;"
