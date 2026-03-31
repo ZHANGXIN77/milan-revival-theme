@@ -23,6 +23,22 @@
   --font-serif: 'Noto Serif SC', 'Noto Sans SC', serif;
   --mc-bg: rgba(201,168,76,0.06);
   --mc-border: rgba(201,168,76,0.2);
+  --conclusion-border: rgba(255,255,255,0.04);
+  --section-border: rgba(255,255,255,0.04);
+}
+
+[data-theme="light"] {
+  --bg: #f5f5f0;
+  --bg-card: #ffffff;
+  --text: #1a1a1a;
+  --text-dim: #6b6b6b;
+  --accent: #a38a30;
+  --accent-dim: rgba(163,138,48,0.10);
+  --border: rgba(163,138,48,0.18);
+  --mc-bg: rgba(163,138,48,0.06);
+  --mc-border: rgba(163,138,48,0.22);
+  --conclusion-border: rgba(0,0,0,0.06);
+  --section-border: rgba(0,0,0,0.06);
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
@@ -76,11 +92,30 @@ body {
 #mainContent { display: none; }
 #mainContent.visible { display: block; }
 
-/* ===== Version Toggle ===== */
-.version-toggle {
+/* ===== Top Toolbar ===== */
+.top-toolbar {
   position: fixed; top: 16px; right: 16px; z-index: 500;
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* Theme toggle */
+.theme-btn {
+  width: 38px; height: 38px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; color: var(--text-dim);
+}
+.theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+.theme-btn svg { width: 18px; height: 18px; }
+.theme-btn .icon-sun { display: none; }
+[data-theme="light"] .theme-btn .icon-moon { display: none; }
+[data-theme="light"] .theme-btn .icon-sun { display: block; }
+
+/* Version toggle */
+.version-toggle {
   display: flex; border-radius: 8px; overflow: hidden;
-  border: 1px solid var(--border); background: rgba(10,10,10,0.85);
+  border: 1px solid var(--border); background: var(--bg);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 .version-btn {
@@ -93,6 +128,30 @@ body {
   background: var(--accent-dim); color: var(--accent); font-weight: 600;
 }
 .version-btn:first-child { border-right: 1px solid var(--border); }
+
+/* Cross icon */
+.cross-icon {
+  display: inline-block; position: relative;
+  width: 1em; height: 1.2em; vertical-align: middle;
+}
+.cross-icon::before {
+  content: ''; position: absolute;
+  left: 50%; top: 0; transform: translateX(-50%);
+  width: 2px; height: 100%; background: currentColor;
+}
+.cross-icon::after {
+  content: ''; position: absolute;
+  top: 30%; left: 0;
+  width: 100%; height: 2px; background: currentColor;
+}
+
+/* Ornament line */
+.ornament {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  color: var(--accent); opacity: 0.5; font-size: 14px; letter-spacing: 0.3em;
+}
+.ornament-line { width: 40px; height: 1px; background: currentColor; }
+.ornament-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 
 /* ===== MC Script Blocks ===== */
 .mc-script {
@@ -189,7 +248,7 @@ body.mode-host .mc-prayer-block { display: block; }
 .program-list { list-style: none; }
 .program-item {
   display: flex; gap: 20px; padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--section-border);
 }
 .program-item:last-child { border-bottom: none; }
 .program-label {
@@ -230,7 +289,7 @@ body.mode-host .mc-prayer-block { display: block; }
   padding-left: 16px; margin-bottom: 14px; line-height: 1.8; font-style: italic;
 }
 .sermon-point p { font-size: 15px; color: var(--text); line-height: 2; margin-bottom: 12px; }
-.sermon-conclusion { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04); }
+.sermon-conclusion { text-align: center; padding-top: 20px; border-top: 1px solid var(--conclusion-border); }
 .sermon-conclusion p { font-size: 15px; line-height: 2; color: var(--text); }
 
 /* ===== Hymn ===== */
@@ -248,7 +307,7 @@ body.mode-host .mc-prayer-block { display: block; }
 .prayer-amen { font-size: 18px; font-weight: 700; color: var(--accent); margin-top: 12px; }
 
 /* ===== Footer ===== */
-.site-footer { text-align: center; padding: 60px 24px 40px; border-top: 1px solid rgba(255,255,255,0.04); }
+.site-footer { text-align: center; padding: 60px 24px 40px; border-top: 1px solid var(--section-border); }
 .footer-thanks {
   font-family: var(--font-serif);
   font-size: 16px; line-height: 2.2; color: var(--text-dim);
@@ -270,8 +329,9 @@ body.mode-host .mc-prayer-block { display: block; }
   .program-item { flex-direction: column; gap: 4px; }
   .program-label { width: auto; }
   .scripture-block { padding: 24px 20px; }
-  .version-toggle { top: 10px; right: 10px; }
+  .top-toolbar { top: 10px; right: 10px; gap: 6px; }
   .version-btn { padding: 6px 14px; font-size: 12px; }
+  .theme-btn { width: 34px; height: 34px; }
 }
 </style>
 </head>
@@ -280,7 +340,7 @@ body.mode-host .mc-prayer-block { display: block; }
 <!-- Lock Screen -->
 <div id="lockScreen">
   <div class="lock-box">
-    <div class="lock-cross">✝</div>
+    <div class="lock-cross"><span class="cross-icon" style="width:24px;height:32px"></span></div>
     <div class="lock-title">追 思 礼 拜</div>
     <div class="lock-input-wrap">
       <input type="password" id="passInput" class="lock-input" placeholder="请输入密码" maxlength="10" autocomplete="off">
@@ -293,16 +353,22 @@ body.mode-host .mc-prayer-block { display: block; }
 <!-- Main Content -->
 <div id="mainContent">
 
-  <!-- Version Toggle -->
-  <div class="version-toggle">
-    <button class="version-btn active" data-mode="public">会众版</button>
-    <button class="version-btn" data-mode="host">主持版</button>
+  <!-- Top Toolbar -->
+  <div class="top-toolbar">
+    <div class="version-toggle">
+      <button class="version-btn active" data-mode="public">会众版</button>
+      <button class="version-btn" data-mode="host">主持版</button>
+    </div>
+    <button class="theme-btn" id="themeToggle" aria-label="切换亮色/暗色模式">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
   </div>
 
   <!-- Cover -->
   <section class="cover">
     <div class="cover-inner" style="animation: fadeUp 0.8s ease">
-      <div class="cover-ornament">✦ ─── ✝ ─── ✦</div>
+      <div class="ornament"><span class="ornament-dot"></span><span class="ornament-line"></span><span class="cross-icon" style="width:14px;height:18px"></span><span class="ornament-line"></span><span class="ornament-dot"></span></div>
       <div class="cover-church">基督教米兰华人复兴教会</div>
       <div class="cover-subtitle">恭 行 礼 拜</div>
       <div class="cover-divider"></div>
@@ -571,7 +637,7 @@ body.mode-host .mc-prayer-block { display: block; }
       愿恩待我们的上帝更加恩待您
     </div>
     <div class="cover-divider"></div>
-    <div class="footer-ornament">✦ ─── ✝ ─── ✦</div>
+    <div class="ornament"><span class="ornament-dot"></span><span class="ornament-line"></span><span class="cross-icon" style="width:14px;height:18px"></span><span class="ornament-line"></span><span class="ornament-dot"></span></div>
   </footer>
 
 </div>
@@ -606,6 +672,21 @@ if (sessionStorage.getItem('memorial_unlocked') === '1') {
 } else {
   passInput.focus();
 }
+
+// Theme toggle
+const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  if (current === 'light') {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.removeItem('theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+  }
+});
 
 // Version toggle
 document.querySelectorAll('.version-btn').forEach(btn => {
