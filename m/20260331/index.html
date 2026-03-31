@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>追思礼拜 | 基督教米兰华人复兴教会</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #141414;
+  --bg-overlay: rgba(0,0,0,0.92);
+  --text: #e8e4dc;
+  --text-dim: #8a8578;
+  --accent: #c9a84c;
+  --accent-dim: rgba(201,168,76,0.12);
+  --border: rgba(201,168,76,0.15);
+  --font-body: 'Noto Sans SC', sans-serif;
+  --font-serif: 'Noto Serif SC', 'Noto Sans SC', serif;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ===== Lock Screen ===== */
+#lockScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#lockScreen.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.lock-box {
+  text-align: center; padding: 40px;
+  animation: fadeUp 0.6s ease;
+}
+.lock-cross {
+  font-size: 36px; color: var(--accent); margin-bottom: 20px;
+  opacity: 0.6;
+}
+.lock-title {
+  font-family: var(--font-serif);
+  font-size: 18px; font-weight: 400; color: var(--text-dim);
+  letter-spacing: 0.15em; margin-bottom: 32px;
+}
+.lock-input-wrap {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: center;
+}
+.lock-input {
+  width: 160px; padding: 12px 16px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text);
+  font-size: 18px; text-align: center; letter-spacing: 0.3em;
+  font-family: var(--font-body);
+  outline: none; transition: border-color 0.3s;
+}
+.lock-input:focus { border-color: var(--accent); }
+.lock-input::placeholder { color: var(--text-dim); letter-spacing: 0.1em; font-size: 14px; }
+.lock-btn {
+  padding: 12px 24px; background: transparent;
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--accent); font-size: 14px; cursor: pointer;
+  font-family: var(--font-body); transition: all 0.3s;
+}
+.lock-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.lock-error {
+  color: #c06050; font-size: 13px; margin-top: 16px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.lock-error.show { opacity: 1; }
+
+/* ===== Main Content ===== */
+#mainContent { display: none; }
+#mainContent.visible { display: block; }
+
+/* ===== Hero / Cover ===== */
+.cover {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 60px 20px;
+  position: relative;
+}
+.cover::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cover-inner { position: relative; z-index: 1; max-width: 600px; }
+.cover-ornament {
+  color: var(--accent); font-size: 14px; letter-spacing: 0.5em;
+  margin-bottom: 28px; opacity: 0.5;
+}
+.cover-church {
+  font-size: 13px; color: var(--text-dim); letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+.cover-subtitle {
+  font-family: var(--font-serif);
+  font-size: 15px; color: var(--text-dim); letter-spacing: 0.25em;
+  margin-bottom: 40px; font-weight: 400;
+}
+.cover-name {
+  font-family: var(--font-serif);
+  font-size: 42px; font-weight: 700; letter-spacing: 0.15em;
+  color: var(--text); margin-bottom: 12px;
+  line-height: 1.3;
+}
+.cover-memorial {
+  font-family: var(--font-serif);
+  font-size: 22px; font-weight: 400; letter-spacing: 0.3em;
+  color: var(--accent); margin-bottom: 48px;
+}
+.cover-info {
+  font-size: 14px; color: var(--text-dim); line-height: 2.2;
+}
+.cover-info strong { color: var(--text); font-weight: 500; }
+.cover-divider {
+  width: 40px; height: 1px; background: var(--accent);
+  margin: 32px auto; opacity: 0.4;
+}
+.scroll-hint {
+  margin-top: 48px; font-size: 12px; color: var(--text-dim);
+  letter-spacing: 0.1em; opacity: 0.5;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* ===== Sections ===== */
+.section {
+  max-width: 680px; margin: 0 auto;
+  padding: 80px 24px;
+}
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 20px; font-weight: 600; letter-spacing: 0.15em;
+  text-align: center; margin-bottom: 12px;
+}
+.section-sub {
+  font-size: 13px; color: var(--text-dim); text-align: center;
+  letter-spacing: 0.1em; margin-bottom: 40px;
+}
+.section-divider {
+  width: 30px; height: 1px; background: var(--accent);
+  margin: 0 auto 40px; opacity: 0.3;
+}
+
+/* ===== Program ===== */
+.program-list { list-style: none; }
+.program-item {
+  display: flex; gap: 20px; padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.program-item:last-child { border-bottom: none; }
+.program-label {
+  width: 100px; flex-shrink: 0;
+  font-family: var(--font-serif);
+  font-size: 15px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--accent); padding-top: 2px;
+}
+.program-detail { flex: 1; }
+.program-who {
+  font-size: 13px; color: var(--text-dim); margin-bottom: 4px;
+}
+.program-desc {
+  font-size: 15px; color: var(--text); line-height: 1.7;
+}
+
+/* ===== Scripture ===== */
+.scripture-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 28px;
+  margin-bottom: 24px;
+}
+.scripture-ref {
+  font-size: 13px; color: var(--accent); letter-spacing: 0.08em;
+  margin-bottom: 14px; font-weight: 500;
+}
+.scripture-text {
+  font-family: var(--font-serif);
+  font-size: 16px; line-height: 2;
+  color: var(--text);
+}
+
+/* ===== Sermon ===== */
+.sermon-heading {
+  font-family: var(--font-serif);
+  font-size: 22px; font-weight: 600; text-align: center;
+  margin-bottom: 8px; letter-spacing: 0.08em;
+}
+.sermon-verse {
+  font-size: 13px; color: var(--text-dim); text-align: center;
+  margin-bottom: 40px;
+}
+.sermon-point {
+  margin-bottom: 32px;
+}
+.sermon-point-title {
+  font-family: var(--font-serif);
+  font-size: 17px; font-weight: 600; color: var(--accent);
+  margin-bottom: 12px; letter-spacing: 0.05em;
+}
+.sermon-point-verse {
+  font-family: var(--font-serif);
+  font-size: 14px; color: var(--text-dim);
+  border-left: 2px solid var(--border);
+  padding-left: 16px; margin-bottom: 14px;
+  line-height: 1.8; font-style: italic;
+}
+.sermon-point p {
+  font-size: 15px; color: var(--text); line-height: 2;
+  margin-bottom: 12px;
+}
+.sermon-conclusion {
+  text-align: center; padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.sermon-conclusion p {
+  font-size: 15px; line-height: 2; color: var(--text);
+}
+
+/* ===== Hymn ===== */
+.hymn-title {
+  font-family: var(--font-serif);
+  font-size: 18px; font-weight: 600; text-align: center;
+  margin-bottom: 32px; letter-spacing: 0.1em;
+}
+.hymn-verse {
+  text-align: center; margin-bottom: 28px;
+}
+.hymn-num {
+  font-size: 13px; color: var(--accent); margin-bottom: 8px;
+  letter-spacing: 0.15em;
+}
+.hymn-line {
+  font-family: var(--font-serif);
+  font-size: 16px; line-height: 2.2;
+}
+
+/* ===== Lord's Prayer ===== */
+.prayer-text {
+  font-family: var(--font-serif);
+  font-size: 16px; line-height: 2.4;
+  text-align: center;
+}
+.prayer-amen {
+  font-size: 18px; font-weight: 700;
+  color: var(--accent); margin-top: 12px;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  text-align: center; padding: 60px 24px 40px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.footer-thanks {
+  font-family: var(--font-serif);
+  font-size: 16px; line-height: 2.2; color: var(--text-dim);
+  max-width: 400px; margin: 0 auto 24px;
+}
+.footer-ornament {
+  color: var(--accent); font-size: 13px;
+  letter-spacing: 0.5em; opacity: 0.4;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+.fade-section {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-section.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .cover-name { font-size: 30px; }
+  .cover-memorial { font-size: 18px; }
+  .section { padding: 60px 18px; }
+  .program-item { flex-direction: column; gap: 4px; }
+  .program-label { width: auto; }
+  .scripture-block { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Lock Screen ===== -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-cross">✝</div>
+    <div class="lock-title">追 思 礼 拜</div>
+    <div class="lock-input-wrap">
+      <input type="password" id="passInput" class="lock-input" placeholder="请输入密码" maxlength="10" autocomplete="off">
+      <button id="passBtn" class="lock-btn">进入</button>
+    </div>
+    <div class="lock-error" id="lockError">密码不正确</div>
+  </div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<div id="mainContent">
+
+  <!-- Cover -->
+  <section class="cover">
+    <div class="cover-inner" style="animation: fadeUp 0.8s ease">
+      <div class="cover-ornament">✦ ─── ✝ ─── ✦</div>
+      <div class="cover-church">基督教米兰华人复兴教会</div>
+      <div class="cover-subtitle">恭 行 礼 拜</div>
+      <div class="cover-divider"></div>
+      <h1 class="cover-name">林 砚 先 生</h1>
+      <div class="cover-memorial">追 思 礼 拜</div>
+      <div class="cover-divider"></div>
+      <div class="cover-info">
+        <strong>2026年3月31日</strong>（星期二）<br>
+        上午 9:30 — 10:30<br><br>
+        Chiesa di Santa Maria della Piet&agrave;<br>
+        Piazzale Cimitero Maggiore, 20151 Milano MI
+      </div>
+      <div class="scroll-hint">向下滑动</div>
+    </div>
+  </section>
+
+  <!-- 礼拜程序 -->
+  <section class="section fade-section">
+    <h2 class="section-title">追 思 礼 拜 程 序</h2>
+    <div class="section-divider"></div>
+    <ul class="program-list">
+      <li class="program-item">
+        <span class="program-label">宣　　召</span>
+        <div class="program-detail">
+          <div class="program-who">司会</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">宣　　训</span>
+        <div class="program-detail">
+          <div class="program-who">司会</div>
+          <div class="program-desc">诗篇四十六篇1-2节 ／ 诗篇三十四篇18节 ／ 约伯记一章21节</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">默　　哀</span>
+        <div class="program-detail">
+          <div class="program-who">会众</div>
+          <div class="program-desc">全体默哀一分钟</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">生平追述</span>
+        <div class="program-detail">
+          <div class="program-who">林墨先生</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">祈　　祷</span>
+        <div class="program-detail">
+          <div class="program-who">司会</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">慰勉证道</span>
+        <div class="program-detail">
+          <div class="program-who">黄爱敏牧师</div>
+          <div class="program-desc">《没有什么能隔绝的爱》<br>经文：罗马书八章35-39节；马太福音十一章28-30节</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">唱　　诗</span>
+        <div class="program-detail">
+          <div class="program-who">会众</div>
+          <div class="program-desc">《奇异恩典》</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">感恩祈祷</span>
+        <div class="program-detail">
+          <div class="program-who">黄爱敏牧师</div>
+        </div>
+      </li>
+      <li class="program-item">
+        <span class="program-label">礼　　毕</span>
+        <div class="program-detail">
+          <div class="program-who">司会</div>
+          <div class="program-desc">主祷文</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 经文摘录 -->
+  <section class="section fade-section">
+    <h2 class="section-title">经 文 摘 录</h2>
+    <div class="section-divider"></div>
+
+    <div class="scripture-block">
+      <div class="scripture-ref">罗马书八章35-39节</div>
+      <div class="scripture-text">
+        谁能使我们与基督的爱隔绝呢？难道是患难吗？是困苦吗？是逼迫吗？是饥饿吗？是赤身露体吗？是危险吗？是刀剑吗？然而，靠着爱我们的主，在这一切的事上已经得胜有余了。<br><br>
+        因为我深信无论是死，是生，是天使，是掌权的，是有能的，是现在的事，是将来的事，是高处的，是低处的，是别的受造之物，都不能叫我们与神的爱隔绝；这爱是在我们的主基督耶稣里的。
+      </div>
+    </div>
+
+    <div class="scripture-block">
+      <div class="scripture-ref">马太福音十一章28-30节</div>
+      <div class="scripture-text">
+        凡劳苦担重担的人，可以到我这里来，我就使你们得安息。我心里柔和谦卑，你们当负我的轭，学我的样式，这样你们心里就必得享安息。因为我的轭是容易的，我的担子是轻省的。
+      </div>
+    </div>
+  </section>
+
+  <!-- 慰勉证道 -->
+  <section class="section fade-section">
+    <h2 class="section-title">慰 勉 证 道</h2>
+    <div class="section-divider"></div>
+    <div class="sermon-heading">《没有什么能隔绝的爱》</div>
+    <div class="sermon-verse">经文：罗马书八章35-39节；马太福音十一章28-30节<br>黄爱敏牧师</div>
+
+    <div class="sermon-point">
+      <div class="sermon-point-title">一、这份爱，看见每一个疲倦的灵魂</div>
+      <div class="sermon-point-verse">「凡劳苦担重担的人，可以到我这里来，我就使你们得安息。」<br>—— 马太福音十一章28节</div>
+      <p>这是耶稣亲口说的一句话。他说这话的对象，不是那些成功的、刚强的人，而是那些「劳苦担重担」的人——被生活压得喘不过气的人、心里满了疲惫和挣扎的人。耶稣没有责备他们为什么软弱，没有问他们为什么撑不住，他只说了一句：来，到我这里来。</p>
+      <p>这个世界上，有些人所承受的重担，是旁人看不见的。我们不一定能完全理解林砚生前经历了什么，但圣经让我们看见，有一位是看见的、是理解的。他不论断，不定罪，他只向每一个疲倦的灵魂伸出手说：来，我给你安息。</p>
+    </div>
+
+    <div class="sermon-point">
+      <div class="sermon-point-title">二、这份爱，靠近每一颗破碎的心灵</div>
+      <div class="sermon-point-verse">「耶和华靠近伤心的人，拯救灵性痛悔的人。」<br>—— 诗篇三十四篇18节</div>
+      <p>此刻在座的家人、朋友，你们的心是破碎的。失去一个年轻的至亲，这种痛没有人能替你们承受，也没有任何话语能让这份伤痛立刻消失。但圣经告诉我们一件事：在你最伤心的时刻，神没有站在远处旁观，他是「靠近」的。</p>
+      <p>「靠近」这个词很重要。不是讲道理，不是给答案，而是靠近。就像今天你们来到这里，你们不一定能说出什么安慰的话，但你们来了——你们的「在场」本身就是爱。同样，在我们最深的哀伤中，神选择靠近，陪伴我们走过这段最黑暗的路。你们并不孤单。</p>
+    </div>
+
+    <div class="sermon-point">
+      <div class="sermon-point-title">三、这份爱，没有什么能将它隔绝了</div>
+      <div class="sermon-point-verse">「因为我深信无论是死，是生，是天使，是掌权的，是有能的，是现在的事，是将来的事，是高处的，是低处的，是别的受造之物，都不能叫我们与神的爱隔绝；这爱是在我们的主基督耶稣里的。」<br>—— 罗马书八章38-39节</div>
+      <p>使徒保罗写下了一长串——死亡、生命、天使、掌权者、现在的事、将来的事、高处、低处——然后他说，这一切，通通不能隔绝神的爱。请注意，他把「死」放在了第一位。这不是偶然的，因为死亡是人最大的恐惧，也是我们今天正在面对的现实。</p>
+      <p>但保罗要告诉我们：即使是死亡，也无法切断这份爱。今天你们也许觉得一切都碎了，觉得再也回不去了。但圣经应许我们：有一份爱，比死亡更强大，比我们的悲伤更深厚，它不会因为任何事而断绝。这份爱，此刻就在这里，环绕着在座的每一个人。</p>
+    </div>
+
+    <div class="sermon-conclusion">
+      <div class="cover-divider"></div>
+      <p>我们没有办法改变已经发生的事。但在这个时刻，我们可以选择彼此靠近，彼此扶持。</p>
+      <p>愿林砚先生安息。也愿在座的每一位，无论你信什么、无论你正经历什么，都能在今天感受到——那份没有什么能隔绝的爱。</p>
+    </div>
+  </section>
+
+  <!-- 诗歌 -->
+  <section class="section fade-section">
+    <h2 class="section-title">诗 歌</h2>
+    <div class="section-divider"></div>
+    <div class="hymn-title">《奇 异 恩 典》</div>
+
+    <div class="hymn-verse">
+      <div class="hymn-num">一</div>
+      <div class="hymn-line">
+        奇异恩典，何等甘甜，我罪已得赦免；<br>
+        前我失丧，今被寻回，瞎眼今得看见。
+      </div>
+    </div>
+    <div class="hymn-verse">
+      <div class="hymn-num">二</div>
+      <div class="hymn-line">
+        如此恩典，使我敬畏，使我心得安慰；<br>
+        初信之时，既蒙恩惠，真是何等宝贵！
+      </div>
+    </div>
+    <div class="hymn-verse">
+      <div class="hymn-num">三</div>
+      <div class="hymn-line">
+        许多危险，试炼网罗，我已安然经过；<br>
+        靠主恩典，完全不怕，更引导我归家。
+      </div>
+    </div>
+    <div class="hymn-verse">
+      <div class="hymn-num">四</div>
+      <div class="hymn-line">
+        将来禧年，圣徒欢聚，恩光爱谊千年；<br>
+        喜乐颂赞，在父座前，深望那日快现。
+      </div>
+    </div>
+  </section>
+
+  <!-- 主祷文 -->
+  <section class="section fade-section">
+    <h2 class="section-title">主 祷 文</h2>
+    <div class="section-divider"></div>
+    <div class="prayer-text">
+      我们在天上的父：<br>
+      愿人都尊祢的名为圣。愿祢的国降临；<br>
+      愿祢的旨意行在地上，如同行在天上。<br>
+      我们日用的饮食，今日赐给我们。<br>
+      免我们的债，如同我们免了人的债。<br>
+      不叫我们遇见试探；救我们脱离凶恶。<br>
+      因为国度、权柄、荣耀，全是祢的，直到永远。<br>
+      <div class="prayer-amen">阿们！</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer fade-section">
+    <div class="footer-thanks">
+      感谢您专程参加追思礼拜<br>
+      您的到来是对我们最大的安慰<br>
+      愿恩待我们的上帝更加恩待您
+    </div>
+    <div class="cover-divider"></div>
+    <div class="footer-ornament">✦ ─── ✝ ─── ✦</div>
+  </footer>
+
+</div>
+
+<script>
+// Password lock
+const PASS = '777';
+const lockScreen = document.getElementById('lockScreen');
+const mainContent = document.getElementById('mainContent');
+const passInput = document.getElementById('passInput');
+const passBtn = document.getElementById('passBtn');
+const lockError = document.getElementById('lockError');
+
+function unlock() {
+  if (passInput.value === PASS) {
+    lockScreen.classList.add('unlocked');
+    mainContent.classList.add('visible');
+    sessionStorage.setItem('memorial_unlocked', '1');
+  } else {
+    lockError.classList.add('show');
+    passInput.value = '';
+    passInput.focus();
+    setTimeout(() => lockError.classList.remove('show'), 2000);
+  }
+}
+
+passBtn.addEventListener('click', unlock);
+passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlock(); });
+
+// Check session
+if (sessionStorage.getItem('memorial_unlocked') === '1') {
+  lockScreen.classList.add('unlocked');
+  mainContent.classList.add('visible');
+} else {
+  passInput.focus();
+}
+
+// Scroll fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-section').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
