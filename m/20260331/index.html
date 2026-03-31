@@ -14,7 +14,6 @@
 :root {
   --bg: #0a0a0a;
   --bg-card: #141414;
-  --bg-overlay: rgba(0,0,0,0.92);
   --text: #e8e4dc;
   --text-dim: #8a8578;
   --accent: #c9a84c;
@@ -22,6 +21,8 @@
   --border: rgba(201,168,76,0.15);
   --font-body: 'Noto Sans SC', sans-serif;
   --font-serif: 'Noto Serif SC', 'Noto Sans SC', serif;
+  --mc-bg: rgba(201,168,76,0.06);
+  --mc-border: rgba(201,168,76,0.2);
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
@@ -44,30 +45,20 @@ body {
 }
 #lockScreen.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.lock-box {
-  text-align: center; padding: 40px;
-  animation: fadeUp 0.6s ease;
-}
-.lock-cross {
-  font-size: 36px; color: var(--accent); margin-bottom: 20px;
-  opacity: 0.6;
-}
+.lock-box { text-align: center; padding: 40px; animation: fadeUp 0.6s ease; }
+.lock-cross { font-size: 36px; color: var(--accent); margin-bottom: 20px; opacity: 0.6; }
 .lock-title {
   font-family: var(--font-serif);
   font-size: 18px; font-weight: 400; color: var(--text-dim);
   letter-spacing: 0.15em; margin-bottom: 32px;
 }
-.lock-input-wrap {
-  display: flex; align-items: center; gap: 12px;
-  justify-content: center;
-}
+.lock-input-wrap { display: flex; align-items: center; gap: 12px; justify-content: center; }
 .lock-input {
   width: 160px; padding: 12px 16px;
   background: transparent; border: 1px solid var(--border);
   border-radius: 6px; color: var(--text);
   font-size: 18px; text-align: center; letter-spacing: 0.3em;
-  font-family: var(--font-body);
-  outline: none; transition: border-color 0.3s;
+  font-family: var(--font-body); outline: none; transition: border-color 0.3s;
 }
 .lock-input:focus { border-color: var(--accent); }
 .lock-input::placeholder { color: var(--text-dim); letter-spacing: 0.1em; font-size: 14px; }
@@ -78,21 +69,81 @@ body {
   font-family: var(--font-body); transition: all 0.3s;
 }
 .lock-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
-.lock-error {
-  color: #c06050; font-size: 13px; margin-top: 16px;
-  opacity: 0; transition: opacity 0.3s;
-}
+.lock-error { color: #c06050; font-size: 13px; margin-top: 16px; opacity: 0; transition: opacity 0.3s; }
 .lock-error.show { opacity: 1; }
 
 /* ===== Main Content ===== */
 #mainContent { display: none; }
 #mainContent.visible { display: block; }
 
-/* ===== Hero / Cover ===== */
+/* ===== Version Toggle ===== */
+.version-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 500;
+  display: flex; border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border); background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.version-btn {
+  padding: 8px 18px; font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer; transition: all 0.3s;
+  font-family: var(--font-body); color: var(--text-dim);
+  background: transparent;
+}
+.version-btn.active {
+  background: var(--accent-dim); color: var(--accent); font-weight: 600;
+}
+.version-btn:first-child { border-right: 1px solid var(--border); }
+
+/* ===== MC Script Blocks ===== */
+.mc-script {
+  display: none;
+  background: var(--mc-bg);
+  border: 1px solid var(--mc-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-top: 12px;
+  position: relative;
+}
+.mc-script::before {
+  content: '司会台词';
+  position: absolute; top: -9px; left: 16px;
+  background: var(--bg); padding: 0 8px;
+  font-size: 11px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
+}
+.mc-script p {
+  font-size: 14px; line-height: 2; color: var(--text);
+  margin-bottom: 8px;
+}
+.mc-script p:last-child { margin-bottom: 0; }
+.mc-script .mc-cue {
+  font-size: 13px; color: var(--text-dim); font-style: italic;
+}
+body.mode-host .mc-script { display: block; }
+
+.mc-prayer-block {
+  display: none;
+  background: var(--mc-bg);
+  border: 1px solid var(--mc-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-top: 12px;
+  position: relative;
+}
+.mc-prayer-block::before {
+  content: '司会祷告词';
+  position: absolute; top: -9px; left: 16px;
+  background: var(--bg); padding: 0 8px;
+  font-size: 11px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
+}
+.mc-prayer-block p {
+  font-size: 14px; line-height: 2; color: var(--text);
+}
+body.mode-host .mc-prayer-block { display: block; }
+
+/* ===== Cover ===== */
 .cover {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  text-align: center; padding: 60px 20px;
-  position: relative;
+  text-align: center; padding: 60px 20px; position: relative;
 }
 .cover::before {
   content: ''; position: absolute; inset: 0;
@@ -100,14 +151,8 @@ body {
   pointer-events: none;
 }
 .cover-inner { position: relative; z-index: 1; max-width: 600px; }
-.cover-ornament {
-  color: var(--accent); font-size: 14px; letter-spacing: 0.5em;
-  margin-bottom: 28px; opacity: 0.5;
-}
-.cover-church {
-  font-size: 13px; color: var(--text-dim); letter-spacing: 0.2em;
-  margin-bottom: 8px;
-}
+.cover-ornament { color: var(--accent); font-size: 14px; letter-spacing: 0.5em; margin-bottom: 28px; opacity: 0.5; }
+.cover-church { font-size: 13px; color: var(--text-dim); letter-spacing: 0.2em; margin-bottom: 8px; }
 .cover-subtitle {
   font-family: var(--font-serif);
   font-size: 15px; color: var(--text-dim); letter-spacing: 0.25em;
@@ -116,46 +161,29 @@ body {
 .cover-name {
   font-family: var(--font-serif);
   font-size: 42px; font-weight: 700; letter-spacing: 0.15em;
-  color: var(--text); margin-bottom: 12px;
-  line-height: 1.3;
+  color: var(--text); margin-bottom: 12px; line-height: 1.3;
 }
 .cover-memorial {
   font-family: var(--font-serif);
   font-size: 22px; font-weight: 400; letter-spacing: 0.3em;
   color: var(--accent); margin-bottom: 48px;
 }
-.cover-info {
-  font-size: 14px; color: var(--text-dim); line-height: 2.2;
-}
+.cover-info { font-size: 14px; color: var(--text-dim); line-height: 2.2; }
 .cover-info strong { color: var(--text); font-weight: 500; }
-.cover-divider {
-  width: 40px; height: 1px; background: var(--accent);
-  margin: 32px auto; opacity: 0.4;
-}
+.cover-divider { width: 40px; height: 1px; background: var(--accent); margin: 32px auto; opacity: 0.4; }
 .scroll-hint {
   margin-top: 48px; font-size: 12px; color: var(--text-dim);
-  letter-spacing: 0.1em; opacity: 0.5;
-  animation: breathe 3s ease-in-out infinite;
+  letter-spacing: 0.1em; opacity: 0.5; animation: breathe 3s ease-in-out infinite;
 }
 
 /* ===== Sections ===== */
-.section {
-  max-width: 680px; margin: 0 auto;
-  padding: 80px 24px;
-}
+.section { max-width: 680px; margin: 0 auto; padding: 80px 24px; }
 .section-title {
   font-family: var(--font-serif);
   font-size: 20px; font-weight: 600; letter-spacing: 0.15em;
   text-align: center; margin-bottom: 12px;
 }
-.section-sub {
-  font-size: 13px; color: var(--text-dim); text-align: center;
-  letter-spacing: 0.1em; margin-bottom: 40px;
-}
-.section-divider {
-  width: 30px; height: 1px; background: var(--accent);
-  margin: 0 auto 40px; opacity: 0.3;
-}
+.section-divider { width: 30px; height: 1px; background: var(--accent); margin: 0 auto 40px; opacity: 0.3; }
 
 /* ===== Program ===== */
 .program-list { list-style: none; }
@@ -171,30 +199,16 @@ body {
   color: var(--accent); padding-top: 2px;
 }
 .program-detail { flex: 1; }
-.program-who {
-  font-size: 13px; color: var(--text-dim); margin-bottom: 4px;
-}
-.program-desc {
-  font-size: 15px; color: var(--text); line-height: 1.7;
-}
+.program-who { font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
+.program-desc { font-size: 15px; color: var(--text); line-height: 1.7; }
 
 /* ===== Scripture ===== */
 .scripture-block {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 32px 28px;
-  margin-bottom: 24px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 32px 28px; margin-bottom: 24px;
 }
-.scripture-ref {
-  font-size: 13px; color: var(--accent); letter-spacing: 0.08em;
-  margin-bottom: 14px; font-weight: 500;
-}
-.scripture-text {
-  font-family: var(--font-serif);
-  font-size: 16px; line-height: 2;
-  color: var(--text);
-}
+.scripture-ref { font-size: 13px; color: var(--accent); letter-spacing: 0.08em; margin-bottom: 14px; font-weight: 500; }
+.scripture-text { font-family: var(--font-serif); font-size: 16px; line-height: 2; color: var(--text); }
 
 /* ===== Sermon ===== */
 .sermon-heading {
@@ -202,13 +216,8 @@ body {
   font-size: 22px; font-weight: 600; text-align: center;
   margin-bottom: 8px; letter-spacing: 0.08em;
 }
-.sermon-verse {
-  font-size: 13px; color: var(--text-dim); text-align: center;
-  margin-bottom: 40px;
-}
-.sermon-point {
-  margin-bottom: 32px;
-}
+.sermon-verse { font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 40px; }
+.sermon-point { margin-bottom: 32px; }
 .sermon-point-title {
   font-family: var(--font-serif);
   font-size: 17px; font-weight: 600; color: var(--accent);
@@ -218,20 +227,11 @@ body {
   font-family: var(--font-serif);
   font-size: 14px; color: var(--text-dim);
   border-left: 2px solid var(--border);
-  padding-left: 16px; margin-bottom: 14px;
-  line-height: 1.8; font-style: italic;
+  padding-left: 16px; margin-bottom: 14px; line-height: 1.8; font-style: italic;
 }
-.sermon-point p {
-  font-size: 15px; color: var(--text); line-height: 2;
-  margin-bottom: 12px;
-}
-.sermon-conclusion {
-  text-align: center; padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.04);
-}
-.sermon-conclusion p {
-  font-size: 15px; line-height: 2; color: var(--text);
-}
+.sermon-point p { font-size: 15px; color: var(--text); line-height: 2; margin-bottom: 12px; }
+.sermon-conclusion { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04); }
+.sermon-conclusion p { font-size: 15px; line-height: 2; color: var(--text); }
 
 /* ===== Hymn ===== */
 .hymn-title {
@@ -239,57 +239,27 @@ body {
   font-size: 18px; font-weight: 600; text-align: center;
   margin-bottom: 32px; letter-spacing: 0.1em;
 }
-.hymn-verse {
-  text-align: center; margin-bottom: 28px;
-}
-.hymn-num {
-  font-size: 13px; color: var(--accent); margin-bottom: 8px;
-  letter-spacing: 0.15em;
-}
-.hymn-line {
-  font-family: var(--font-serif);
-  font-size: 16px; line-height: 2.2;
-}
+.hymn-verse { text-align: center; margin-bottom: 28px; }
+.hymn-num { font-size: 13px; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.15em; }
+.hymn-line { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; }
 
 /* ===== Lord's Prayer ===== */
-.prayer-text {
-  font-family: var(--font-serif);
-  font-size: 16px; line-height: 2.4;
-  text-align: center;
-}
-.prayer-amen {
-  font-size: 18px; font-weight: 700;
-  color: var(--accent); margin-top: 12px;
-}
+.prayer-text { font-family: var(--font-serif); font-size: 16px; line-height: 2.4; text-align: center; }
+.prayer-amen { font-size: 18px; font-weight: 700; color: var(--accent); margin-top: 12px; }
 
 /* ===== Footer ===== */
-.site-footer {
-  text-align: center; padding: 60px 24px 40px;
-  border-top: 1px solid rgba(255,255,255,0.04);
-}
+.site-footer { text-align: center; padding: 60px 24px 40px; border-top: 1px solid rgba(255,255,255,0.04); }
 .footer-thanks {
   font-family: var(--font-serif);
   font-size: 16px; line-height: 2.2; color: var(--text-dim);
   max-width: 400px; margin: 0 auto 24px;
 }
-.footer-ornament {
-  color: var(--accent); font-size: 13px;
-  letter-spacing: 0.5em; opacity: 0.4;
-}
+.footer-ornament { color: var(--accent); font-size: 13px; letter-spacing: 0.5em; opacity: 0.4; }
 
 /* ===== Animations ===== */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes breathe {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
-}
-.fade-section {
-  opacity: 0; transform: translateY(20px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+.fade-section { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .fade-section.visible { opacity: 1; transform: translateY(0); }
 
 /* ===== Responsive ===== */
@@ -300,12 +270,14 @@ body {
   .program-item { flex-direction: column; gap: 4px; }
   .program-label { width: auto; }
   .scripture-block { padding: 24px 20px; }
+  .version-toggle { top: 10px; right: 10px; }
+  .version-btn { padding: 6px 14px; font-size: 12px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== Lock Screen ===== -->
+<!-- Lock Screen -->
 <div id="lockScreen">
   <div class="lock-box">
     <div class="lock-cross">✝</div>
@@ -318,8 +290,14 @@ body {
   </div>
 </div>
 
-<!-- ===== Main Content ===== -->
+<!-- Main Content -->
 <div id="mainContent">
+
+  <!-- Version Toggle -->
+  <div class="version-toggle">
+    <button class="version-btn active" data-mode="public">会众版</button>
+    <button class="version-btn" data-mode="host">主持版</button>
+  </div>
 
   <!-- Cover -->
   <section class="cover">
@@ -346,65 +324,134 @@ body {
     <h2 class="section-title">追 思 礼 拜 程 序</h2>
     <div class="section-divider"></div>
     <ul class="program-list">
+
+      <!-- 宣召 -->
       <li class="program-item">
         <span class="program-label">宣　　召</span>
         <div class="program-detail">
           <div class="program-who">司会</div>
+          <div class="mc-script">
+            <p class="mc-cue">「请各位起立。」</p>
+            <p>林砚先生的家属，以及在座各位至亲好友：</p>
+            <p>感谢大家在百忙之中来到这里，与我们一同追念林砚先生。在这个哀伤的时刻，我们聚集在此，不仅是为了告别，更是为了彼此安慰、相互扶持。</p>
+            <p>愿每一位在座的朋友，在今天的聚会中，心灵能够得着安慰与平安。</p>
+            <p>现在敬请各位以庄严的态度，一起站立。</p>
+          </div>
         </div>
       </li>
+
+      <!-- 宣训 -->
       <li class="program-item">
         <span class="program-label">宣　　训</span>
         <div class="program-detail">
           <div class="program-who">司会</div>
           <div class="program-desc">诗篇四十六篇1-2节 ／ 诗篇三十四篇18节 ／ 约伯记一章21节</div>
+          <div class="mc-script">
+            <p>圣经告诉我们：</p>
+            <p>「神是我们的避难所，是我们的力量，是我们在患难中随时的帮助。所以地虽改变，山虽摇动到海心，我们也不害怕。」<br>—— 诗篇四十六篇1-2节</p>
+            <p>「耶和华靠近伤心的人，拯救灵性痛悔的人。」<br>—— 诗篇三十四篇18节</p>
+            <p>「我赤身出于母胎，也必赤身归回。赏赐的是耶和华，收取的也是耶和华，耶和华的名是应当称颂的。」<br>—— 约伯记一章21节</p>
+            <p class="mc-cue">「现在我们一起默哀追悼一分钟，以表达对林砚先生的怀念。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 默哀 -->
       <li class="program-item">
         <span class="program-label">默　　哀</span>
         <div class="program-detail">
           <div class="program-who">会众</div>
           <div class="program-desc">全体默哀一分钟</div>
+          <div class="mc-script">
+            <p class="mc-cue">（ 全体默哀一分钟 ）</p>
+            <p class="mc-cue">「默哀结束。请各位坐下。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 生平追述 -->
       <li class="program-item">
         <span class="program-label">生平追述</span>
         <div class="program-detail">
           <div class="program-who">林墨先生</div>
+          <div class="mc-script">
+            <p class="mc-cue">「下面有请林墨先生，为我们分享林砚先生的生平点滴。」</p>
+            <p class="mc-cue">（ 生平追述 ）</p>
+            <p class="mc-cue">「感谢林墨先生的分享。让我们一起来祷告。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 祈祷 -->
       <li class="program-item">
         <span class="program-label">祈　　祷</span>
         <div class="program-detail">
           <div class="program-who">司会</div>
+          <div class="mc-prayer-block">
+            <p>慈悲怜悯的上帝，你是一切安慰的源头，也是我们在患难中随时的帮助。此刻我们的心充满忧伤，因为林砚——一个年轻的生命，离开了我们。</p>
+            <p>主啊，你知道他在世上所经历的一切挣扎与重担。你也看见此刻家人心中的痛苦与不舍。求你靠近每一位伤心的人，用你的慈爱环绕他们，用你的膀臂扶持他们，使他们在最深的哀伤中，仍然能够感受到你的同在。</p>
+            <p>天父，我们把在座每一位朋友都交在你的手中。求你赐下平安，超越我们所能理解的平安，保守众人的心怀意念。</p>
+            <p>这样的祷告，奉靠主耶稣基督的名求，阿们。</p>
+          </div>
+          <div class="mc-script">
+            <p class="mc-cue">「各位请坐，让我们一起聆听上帝的话语。下面有请黄爱敏牧师为我们证道。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 慰勉证道 -->
       <li class="program-item">
         <span class="program-label">慰勉证道</span>
         <div class="program-detail">
           <div class="program-who">黄爱敏牧师</div>
           <div class="program-desc">《没有什么能隔绝的爱》<br>经文：罗马书八章35-39节；马太福音十一章28-30节</div>
+          <div class="mc-script">
+            <p class="mc-cue">（ 证道时间 ）</p>
+            <p class="mc-cue">「感谢黄牧师的信息。愿上帝的话语成为众人的安慰。」</p>
+            <p class="mc-cue">「请各位一起站立，我们齐唱《奇异恩典》。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 唱诗 -->
       <li class="program-item">
         <span class="program-label">唱　　诗</span>
         <div class="program-detail">
           <div class="program-who">会众</div>
           <div class="program-desc">《奇异恩典》</div>
+          <div class="mc-script">
+            <p class="mc-cue">「请各位继续站立。我们一起来祷告。有请黄爱敏牧师。」</p>
+          </div>
         </div>
       </li>
+
+      <!-- 感恩祈祷 -->
       <li class="program-item">
         <span class="program-label">感恩祈祷</span>
         <div class="program-detail">
           <div class="program-who">黄爱敏牧师</div>
+          <div class="mc-prayer-block">
+            <p>满有恩典的天父上帝，我们感谢你，在这个追思的时刻，你与我们同在。感谢你让我们有机会聚集在这里，一起纪念林砚，也彼此安慰。</p>
+            <p>主啊，求你继续看顾林砚先生的家人。在未来的日子里，当哀伤再次袭来的时候，求你成为他们的力量与安慰。也求你赐福在座每一位朋友，保守大家出入平安。</p>
+            <p>这样的祷告，奉靠主耶稣基督的名求，阿们。</p>
+          </div>
         </div>
       </li>
+
+      <!-- 礼毕 -->
       <li class="program-item">
         <span class="program-label">礼　　毕</span>
         <div class="program-detail">
           <div class="program-who">司会</div>
           <div class="program-desc">主祷文</div>
+          <div class="mc-script">
+            <p class="mc-cue">「请各位翻开手册，我们一起诵读主祷文。」</p>
+            <p class="mc-cue">（ 诵读主祷文后 ）</p>
+            <p class="mc-cue">「追思礼拜到此结束。请家属先行移步，其余来宾随后。愿上帝的平安与各位同在。」</p>
+          </div>
         </div>
       </li>
+
     </ul>
   </section>
 
@@ -550,17 +597,28 @@ function unlock() {
     setTimeout(() => lockError.classList.remove('show'), 2000);
   }
 }
-
 passBtn.addEventListener('click', unlock);
 passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlock(); });
 
-// Check session
 if (sessionStorage.getItem('memorial_unlocked') === '1') {
   lockScreen.classList.add('unlocked');
   mainContent.classList.add('visible');
 } else {
   passInput.focus();
 }
+
+// Version toggle
+document.querySelectorAll('.version-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.version-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (btn.dataset.mode === 'host') {
+      document.body.classList.add('mode-host');
+    } else {
+      document.body.classList.remove('mode-host');
+    }
+  });
+});
 
 // Scroll fade-in
 const observer = new IntersectionObserver((entries) => {
