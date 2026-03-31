@@ -158,24 +158,27 @@ body {
   display: none;
   background: var(--mc-bg);
   border: 1px solid var(--mc-border);
-  border-radius: 8px;
-  padding: 18px 20px;
-  margin-top: 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 20px 22px;
+  margin-top: 14px;
   position: relative;
 }
 .mc-script::before {
   content: '司会台词';
-  position: absolute; top: -9px; left: 16px;
-  background: var(--bg); padding: 0 8px;
-  font-size: 11px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
+  display: inline-block;
+  background: var(--accent-dim); padding: 2px 10px;
+  border-radius: 4px; margin-bottom: 12px;
+  font-size: 12px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
 }
 .mc-script p {
-  font-size: 14px; line-height: 2; color: var(--text);
-  margin-bottom: 8px;
+  font-size: 16px; line-height: 2.1; color: var(--text);
+  margin-bottom: 10px;
 }
 .mc-script p:last-child { margin-bottom: 0; }
 .mc-script .mc-cue {
-  font-size: 13px; color: var(--text-dim); font-style: italic;
+  font-size: 15px; color: var(--accent); font-style: normal; font-weight: 500;
+  padding: 6px 0;
 }
 body.mode-host .mc-script { display: block; }
 
@@ -183,20 +186,24 @@ body.mode-host .mc-script { display: block; }
   display: none;
   background: var(--mc-bg);
   border: 1px solid var(--mc-border);
-  border-radius: 8px;
-  padding: 18px 20px;
-  margin-top: 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 20px 22px;
+  margin-top: 14px;
   position: relative;
 }
 .mc-prayer-block::before {
   content: '司会祷告词';
-  position: absolute; top: -9px; left: 16px;
-  background: var(--bg); padding: 0 8px;
-  font-size: 11px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
+  display: inline-block;
+  background: var(--accent-dim); padding: 2px 10px;
+  border-radius: 4px; margin-bottom: 12px;
+  font-size: 12px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600;
 }
 .mc-prayer-block p {
-  font-size: 14px; line-height: 2; color: var(--text);
+  font-size: 16px; line-height: 2.1; color: var(--text);
+  margin-bottom: 10px;
 }
+.mc-prayer-block p:last-child { margin-bottom: 0; }
 body.mode-host .mc-prayer-block { display: block; }
 
 /* ===== Cover ===== */
@@ -325,13 +332,37 @@ body.mode-host .mc-prayer-block { display: block; }
 @media (max-width: 600px) {
   .cover-name { font-size: 30px; }
   .cover-memorial { font-size: 18px; }
-  .section { padding: 60px 18px; }
-  .program-item { flex-direction: column; gap: 4px; }
-  .program-label { width: auto; }
+  .section { padding: 50px 16px; }
+  .program-item { flex-direction: column; gap: 6px; padding: 20px 0; }
+  .program-label { width: auto; font-size: 16px; }
+  .program-who { font-size: 14px; }
+  .program-desc { font-size: 15px; }
   .scripture-block { padding: 24px 20px; }
   .top-toolbar { top: 10px; right: 10px; gap: 6px; }
   .version-btn { padding: 6px 14px; font-size: 12px; }
   .theme-btn { width: 34px; height: 34px; }
+
+  /* MC blocks: larger text for phone reading */
+  .mc-script, .mc-prayer-block {
+    padding: 18px 16px; margin-top: 16px;
+  }
+  .mc-script p, .mc-prayer-block p {
+    font-size: 17px; line-height: 2.2;
+  }
+  .mc-script .mc-cue {
+    font-size: 16px; padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 12px;
+  }
+  .mc-script .mc-cue:last-child { border-bottom: none; margin-bottom: 0; }
+  .mc-script::before, .mc-prayer-block::before {
+    font-size: 12px; margin-bottom: 14px;
+  }
+
+  /* Sermon mobile */
+  .sermon-point-title { font-size: 16px; }
+  .sermon-point p { font-size: 15px; line-height: 2; }
+  .sermon-point-verse { font-size: 14px; }
 }
 </style>
 </head>
