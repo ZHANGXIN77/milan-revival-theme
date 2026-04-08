@@ -18,6 +18,7 @@ export default function MemberProfile() {
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [newNote, setNewNote] = useState({ type: '关怀谈话', content: '' });
   const [pendingStage, setPendingStage] = useState(null);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
 
   if (!member) return (
     <div style={{ padding: 40, textAlign: 'center' }}>
@@ -32,18 +33,23 @@ export default function MemberProfile() {
   const stage = STAGES[member.stage];
   const canEdit = user?.role === 'pastor' || (user?.role === 'leader' && user?.groupId === member.groupId);
 
+  // 预计算任务完成进度，避免 JSX 内 IIFE
+  const taskCompletedSet = new Set((member.taskProgress || {})[member.stage] || []);
+  const taskDoneCount = taskCompletedSet.size;
+  const taskTotal = stage?.tasks.length ?? 0;
+
   const handleStageChange = (e) => {
-    if (canEdit) setPendingStage(Number(e.target.value));
+    if (canEdit && Number(e.target.value) !== member.stage) setPendingStage(Number(e.target.value));
   };
 
-  const confirmStageChange = () => {
-    updateMember(member.id, { stage: pendingStage });
+  const confirmStageChange = async () => {
+    await updateMember(member.id, { stage: pendingStage });
     setPendingStage(null);
   };
 
-  const handleSubmitNote = () => {
+  const handleSubmitNote = async () => {
     if (!newNote.content.trim()) return;
-    addNote({ memberId: member.id, authorId: user?.id || 0, ...newNote });
+    await addNote({ memberId: member.id, authorId: user?.id || 0, ...newNote });
     setNewNote({ type: '关怀谈话', content: '' });
     setShowNoteForm(false);
     setTab('notes');
@@ -107,7 +113,6 @@ export default function MemberProfile() {
           {[
             { label: '英文名', value: member.englishName },
             { label: '学校 / 年级', value: member.school },
-            { label: '手机号码', value: member.phone },
             { label: '邮箱地址', value: member.email },
             { label: '家长联系方式', value: member.parentContact },
             { label: '来教会时间', value: member.joinDate ? new Date(member.joinDate).toLocaleDateString('zh-CN') : '—' },
@@ -122,15 +127,29 @@ export default function MemberProfile() {
               </div>
             </div>
           ))}
+          {/* 手机号码单独渲染，隐私保护 */}
+          {member.phone && (
+            <div className="card" style={{ padding: '14px 18px' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 6 }}>手机号码</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 14 }}>{phoneRevealed ? member.phone : '••••••••••'}</span>
+                <button onClick={() => setPhoneRevealed(v => !v)}
+                  className="btn btn-ghost btn-sm"
+                  style={{ fontSize: 11, padding: '2px 8px', color: 'var(--color-accent)' }}>
+                  {phoneRevealed ? '隐藏' : '显示'}
+                </button>
+              </div>
+            </div>
+          )}
           {user?.role === 'pastor' && (
             <div className="card" style={{ padding: '14px 18px' }}>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 6 }}>所属小组</div>
               <select
                 className="form-select"
                 value={member.groupId ?? ''}
-                onChange={e => {
+                onChange={async e => {
                   const newGroupId = e.target.value ? Number(e.target.value) : null;
-                  updateMember(member.id, { groupId: newGroupId });
+                  await updateMember(member.id, { groupId: newGroupId });
                 }}
                 style={{ fontSize: 13, padding: '4px 8px', height: 30 }}
               >
@@ -149,27 +168,45 @@ export default function MemberProfile() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>当前牧养阶段</div>
             {canEdit ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <select className="form-select" value={member.stage} onChange={handleStageChange} style={{ maxWidth: 200 }}>
+                <select className="form-select" value={pendingStage !== null ? pendingStage : member.stage} onChange={handleStageChange} style={{ maxWidth: 200 }}>
                   {STAGES.map((s, i) => <option key={i} value={i}>{s.name}</option>)}
                 </select>
-                <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>调整后需二次确认</span>
+                <span style={{ fontSize: 12, color: pendingStage !== null ? 'var(--color-accent)' : 'var(--color-text-muted)' }}>
+                  {pendingStage !== null ? '请点击确认以保存' : '调整后需二次确认'}
+                </span>
               </div>
             ) : (
               <StageTag stage={member.stage} size="md" />
             )}
           </div>
 
-          {/* Tasks for current stage */}
+          {/* Tasks for current stage with completion state */}
           <div className="card">
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: stage?.color }}>{stage?.name} — 追踪事项</div>
-            {stage?.tasks.map((task, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${stage.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, color: stage.color }}>
-                  {i + 1}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: stage?.color }}>{stage?.name} — 追踪事项</div>
+              <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{taskDoneCount}/{taskTotal} 已完成</span>
+            </div>
+            <div style={{ height: 4, background: 'var(--color-bg-secondary)', borderRadius: 2, marginBottom: 12, overflow: 'hidden' }}>
+              <div style={{ height: '100%', borderRadius: 2, background: stage?.color, width: `${taskTotal ? (taskDoneCount / taskTotal) * 100 : 0}%`, transition: 'width 0.4s ease' }} />
+            </div>
+            {stage?.tasks.map((task, i) => {
+              const done = taskCompletedSet.has(i);
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${stage.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: done ? stage.color : 'transparent' }}>
+                    {done ? (
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="2,6 5,9 10,3" />
+                      </svg>
+                    ) : (
+                      <span style={{ fontSize: 11, color: stage.color }}>{i + 1}</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 14, color: done ? 'var(--color-text-muted)' : 'var(--color-text-primary)', textDecoration: done ? 'line-through' : 'none' }}>{task}</span>
+                  {done && <span style={{ fontSize: 11, color: stage.color, marginLeft: 'auto' }}>已自报</span>}
                 </div>
-                <span style={{ fontSize: 14 }}>{task}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* All stages overview */}

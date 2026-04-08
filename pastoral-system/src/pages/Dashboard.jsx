@@ -42,11 +42,11 @@ export default function Dashboard() {
     return absences.length >= 2;
   });
 
-  const activeCount = myMembers.filter(m => m.status === '活跃').length;
-  const latestAttRate = attendance[0] ? Math.round(attendance[0].records.filter(r => {
-    const inMyGroup = isPastor || myMembers.find(m => m.id === r.memberId);
-    return inMyGroup && r.present;
-  }).length / myMembers.length * 100) : 0;
+  const activeMembers = myMembers.filter(m => m.status === '活跃');
+  const activeCount = activeMembers.length;
+  const latestAttRate = (attendance[0] && activeCount > 0) ? Math.round(
+    attendance[0].records.filter(r => activeMembers.find(m => m.id === r.memberId) && r.present).length / activeCount * 100
+  ) : 0;
 
   const typeColors = { '关怀谈话': 'var(--color-accent)', '出席情况': 'var(--color-success)', '代祷事项': 'var(--stage-3)', '异常状况': 'var(--color-danger)' };
 
@@ -57,15 +57,20 @@ export default function Dashboard() {
           <h1 className="page-title">{isPastor ? '牧区总览' : '小组概览'}</h1>
           <p className="page-subtitle">欢迎回来，{user?.name}｜今天是 {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate('/members')}>查看人员 →</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={() => navigate('/attendance')}>记录今日出席 →</button>
+          <button className="btn btn-primary" onClick={() => navigate('/members')}>查看人员 →</button>
+        </div>
       </div>
 
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 24 }}>
         <StatCard label="在册人数" value={myMembers.length} sub={`${activeCount} 人活跃`} />
-        <StatCard label="本周出席率" value={`${latestAttRate}%`} sub="本主日崇拜" accent="var(--color-success)" />
+        <StatCard label="本周出席率" value={`${latestAttRate}%`}
+          sub={attendance[0] ? new Date(attendance[0].date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }) + ' 主日' : '暂无记录'}
+          accent="var(--color-success)" />
         <StatCard label="需要关注" value={alertMembers.length} sub="连续缺席2周" accent={alertMembers.length > 0 ? 'var(--color-danger)' : undefined} />
-        {isPastor && <StatCard label="小组数量" value={groups.length} sub="共5个小组" accent="var(--stage-3)" />}
+        {isPastor && <StatCard label="小组数量" value={groups.length} sub={`共 ${groups.length} 个小组`} accent="var(--stage-3)" />}
       </div>
 
       {/* Attendance trend */}
@@ -74,9 +79,9 @@ export default function Dashboard() {
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 14 }}>近期出席趋势</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {attendance.slice(0, 4).map(a => {
-              const relevant = a.records.filter(r => isPastor || myMembers.find(m => m.id === r.memberId));
+              const relevant = a.records.filter(r => activeMembers.find(m => m.id === r.memberId));
               const present = relevant.filter(r => r.present).length;
-              const total = myMembers.length;
+              const total = activeCount;
               const rate = total ? Math.round(present / total * 100) : 0;
               const barColor = rate >= 80 ? 'var(--color-success)' : rate >= 60 ? 'var(--color-accent)' : 'var(--color-danger)';
               return (

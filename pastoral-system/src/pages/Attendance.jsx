@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { useSuccessMessage } from '../hooks/useSuccessMessage';
 import Avatar from '../components/Avatar';
 
 export default function Attendance() {
@@ -23,13 +24,7 @@ export default function Attendance() {
 
   const [editingDate, setEditingDate] = useState(null);
   const [editRecords, setEditRecords] = useState({});
-  const [success, setSuccess] = useState('');
-
-  useEffect(() => {
-    if (!success) return;
-    const t = setTimeout(() => setSuccess(''), 3000);
-    return () => clearTimeout(t);
-  }, [success]);
+  const [success, setSuccess] = useSuccessMessage();
 
   const startEditing = () => {
     const existing = getAttendanceForDate(selectedDate);
@@ -46,9 +41,9 @@ export default function Attendance() {
     setEditRecords(prev => ({ ...prev, [memberId]: !prev[memberId] }));
   };
 
-  const saveAttendance = () => {
+  const saveAttendance = async () => {
     const records = displayMembers.map(m => ({ memberId: m.id, present: editRecords[m.id] || false }));
-    recordAttendance(selectedDate, records);
+    await recordAttendance(selectedDate, records);
     setEditingDate(null);
     const presentN = records.filter(r => r.present).length;
     setSuccess(`${new Date(selectedDate).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })} 出席记录已保存（${presentN}/${records.length} 人出席）`);
@@ -88,6 +83,19 @@ export default function Attendance() {
       {success && (
         <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 'var(--radius-sm)', background: 'rgba(90,171,126,0.12)', border: '1px solid var(--color-success)', color: 'var(--color-success)', fontSize: 13 }}>
           {success}
+        </div>
+      )}
+
+      {/* 今日出席提示 */}
+      {selectedDate === today && !isEditing && getAttendanceForDate(today).length === 0 && displayMembers.length > 0 && (
+        <div style={{ marginBottom: 20, padding: '14px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--color-accent-dim)', border: '1px solid var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-accent)', marginBottom: 2 }}>今天还没有出席记录</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+              {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })} · {displayMembers.length} 人待记录
+            </div>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={startEditing}>开始记录 →</button>
         </div>
       )}
 

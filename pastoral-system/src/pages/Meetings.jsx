@@ -13,6 +13,7 @@ export default function Meetings() {
   const { user } = useAuth();
   const { groups, meetings, getGroup, addMeeting, updateMeeting, deleteMeeting } = useApp();
   const isPastor = user?.role === 'pastor';
+  const canEdit = isPastor || user?.role === 'leader';
 
   const [filterGroup, setFilterGroup] = useState(isPastor ? '' : String(user?.groupId));
   const [showModal, setShowModal] = useState(false);
@@ -57,19 +58,19 @@ export default function Meetings() {
     setShowModal(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.groupId) { setError('请选择小组'); return; }
     if (!form.date) { setError('请选择日期'); return; }
     if (!form.theme.trim()) { setError('请填写聚会主题'); return; }
     const data = { ...form, groupId: Number(form.groupId) };
-    if (editId) updateMeeting(editId, data);
-    else addMeeting(data);
+    if (editId) await updateMeeting(editId, data);
+    else await addMeeting(data);
     setShowModal(false);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('确定要删除这次聚会安排吗？')) deleteMeeting(id);
+  const handleDelete = async (id) => {
+    if (window.confirm('确定要删除这次聚会安排吗？')) await deleteMeeting(id);
   };
 
   const set = (k) => (e) => { setForm(f => ({ ...f, [k]: e.target.value })); setError(''); };
@@ -86,7 +87,7 @@ export default function Meetings() {
           <h1 className="page-title">聚会安排</h1>
           <p className="page-subtitle">未来 6 个月共 {visible.length} 次聚会</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>+ 新增聚会</button>
+        {canEdit && <button className="btn btn-primary" onClick={openAdd}>+ 新增聚会</button>}
       </div>
 
       {/* 小组筛选（牧区长可见） */}
@@ -151,11 +152,13 @@ export default function Meetings() {
                         {m.notes && <p style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 6, fontStyle: 'italic' }}>{m.notes}</p>}
                       </div>
 
-                      {/* 操作按钮 */}
-                      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(m)} style={{ padding: '4px 10px', fontSize: 12 }}>编辑</button>
-                        <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(m.id)} style={{ padding: '4px 10px', fontSize: 12, color: 'var(--color-danger)' }}>删除</button>
-                      </div>
+                      {/* 操作按钮（仅牧区长/小组长） */}
+                      {canEdit && (
+                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(m)} style={{ padding: '4px 10px', fontSize: 12 }}>编辑</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(m.id)} style={{ padding: '4px 10px', fontSize: 12, color: 'var(--color-danger)' }}>删除</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

@@ -391,6 +391,9 @@ add_action('wp_ajax_visitor_form', 'milan_revival_visitor_form');
 add_action('wp_ajax_nopriv_visitor_form', 'milan_revival_visitor_form');
 
 // ========== Pastoral System REST API ==========
+// 数据 API（建表 + CRUD）在单独文件中管理
+require_once get_template_directory() . '/pastoral-data-api.php';
+
 define('PASTORAL_PASTOR_EMAIL', 'zanmeizhixin@gmail.com');
 
 function pastoral_get_authorized_users() {
@@ -520,13 +523,10 @@ function pastoral_api_approve($request) {
     return rest_ensure_response(array('success' => true));
 }
 
-// 验证 Google JWT 中的邮箱是否为牧区长
+// 验证 Google JWT 中的邮箱是否为牧区长（使用安全验证，签名经 Google 官方接口核实）
 function pastoral_verify_pastor($credential) {
-    $parts = explode('.', $credential);
-    if (count($parts) !== 3) return false;
-    $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
-    if (!$payload || empty($payload['email'])) return false;
-    return strtolower($payload['email']) === PASTORAL_PASTOR_EMAIL;
+    $email = pastoral_verify_credential($credential);
+    return $email !== false && $email === PASTORAL_PASTOR_EMAIL;
 }
 
 // 注册 REST 路由
@@ -558,3 +558,41 @@ function milan_revival_cleanup() {
     remove_action('wp_head', 'rsd_link');
 }
 add_action('init', 'milan_revival_cleanup');
+
+// ========== Hide /admin and /wp-admin from unauthorized access ==========
+function milan_revival_hide_admin_access() {
+    $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+    $path = parse_url($request_uri, PHP_URL_PATH);
+    $path = rtrim($path, '/');
+
+    // Block /admin redirect (WordPress auto-redirects /admin to /wp-admin)
+    if ($path === '/admin') {
+        wp_redirect(home_url('/'), 302);
+        exit;
+    }
+
+    // Block /wp-admin access for non-logged-in users (allow admin-ajax.php and REST API)
+    if (!is_user_logged_in()
+        && strpos($path, '/wp-admin') !== false
+        && strpos($path, 'admin-ajax.php') === false
+        && strpos($path, 'admin-post.php') === false
+    ) {
+        wp_redirect(home_url('/'), 302);
+        exit;
+    }
+}
+add_action('init', 'milan_revival_hide_admin_access');
+
+// Hide /wp-login.php for non-authorized access (redirect to home unless posting login)
+function milan_revival_hide_wp_login() {
+    $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($request_uri, 'wp-login.php') !== false
+        && $_SERVER['REQUEST_METHOD'] === 'GET'
+        && !is_user_logged_in()
+        && empty($_GET['action'])
+    ) {
+        wp_redirect(home_url('/'), 302);
+        exit;
+    }
+}
+add_action('init', 'milan_revival_hide_wp_login');

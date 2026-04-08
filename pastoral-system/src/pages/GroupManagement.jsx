@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { useSuccessMessage } from '../hooks/useSuccessMessage';
 import { STAGES } from '../data/mockData';
 import Avatar from '../components/Avatar';
 import StageTag from '../components/StageTag';
@@ -14,22 +15,17 @@ export default function GroupManagement() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useSuccessMessage();
 
-  useEffect(() => {
-    if (!success) return;
-    const t = setTimeout(() => setSuccess(''), 3000);
-    return () => clearTimeout(t);
-  }, [success]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) { setError('请填写小组名称'); return; }
-    const newGroup = addGroup({ name: form.name.trim(), description: form.description.trim() });
+    const groupName = form.name.trim();
     setForm({ name: '', description: '' });
     setError('');
     setShowModal(false);
-    setSuccess(`小组「${newGroup?.name || form.name.trim()}」已创建`);
+    await addGroup({ name: groupName, description: form.description.trim() });
+    setSuccess(`小组「${groupName}」已创建`);
   };
 
   return (
@@ -81,11 +77,11 @@ export default function GroupManagement() {
                     <select
                       className="form-select"
                       value={group.leaderId ?? ''}
-                      onChange={e => {
+                      onChange={async e => {
                         const newId = e.target.value ? Number(e.target.value) : null;
-                        if (group.leaderId) updateMember(group.leaderId, { isGroupLeader: false });
-                        if (newId) updateMember(newId, { isGroupLeader: true });
-                        updateGroup(group.id, { leaderId: newId });
+                        if (group.leaderId) await updateMember(group.leaderId, { isGroupLeader: false });
+                        if (newId) await updateMember(newId, { isGroupLeader: true });
+                        await updateGroup(group.id, { leaderId: newId });
                       }}
                       style={{ fontSize: 12, padding: '3px 8px', height: 28 }}>
                       <option value="">（未指定）</option>

@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { STAGES } from '../data/mockData';
 import StageTag from '../components/StageTag';
 import Avatar from '../components/Avatar';
+import { useSuccessMessage } from '../hooks/useSuccessMessage';
 
 const NOTE_TYPES = ['关怀谈话', '出席情况', '代祷事项', '异常状况'];
 const EMPTY_FORM = { name: '', englishName: '', gender: '男', dob: '', school: '', phone: '', email: '', parentContact: '', groupId: '', stage: 0, status: '活跃', gdprConsent: false, baptized: false, baptizeDate: '', joinDate: '' };
@@ -17,11 +18,23 @@ export default function MemberList() {
   const [filterStage, setFilterStage] = useState('');
   const [filterGroup, setFilterGroup] = useState('');
   const [filterStatus, setFilterStatus] = useState('活跃');
+  const [sortBy, setSortBy] = useState('joinDate_desc');
   const [showAddModal, setShowAddModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
   const [quickNote, setQuickNote] = useState(null); // { id, name }
   const [quickNoteForm, setQuickNoteForm] = useState({ type: '关怀谈话', content: '' });
+  const [revealedPhones, setRevealedPhones] = useState(new Set());
+  const [successMsg, setSuccessMsg] = useSuccessMessage();
+
+  const togglePhone = (e, memberId) => {
+    e.stopPropagation();
+    setRevealedPhones(prev => {
+      const next = new Set(prev);
+      if (next.has(memberId)) next.delete(memberId); else next.add(memberId);
+      return next;
+    });
+  };
 
   const isPastor = user?.role === 'pastor';
   const canAddNote = isPastor || user?.role === 'leader';
@@ -33,33 +46,48 @@ export default function MemberList() {
     const matchGroup = filterGroup === '' || m.groupId === Number(filterGroup);
     const matchStatus = !filterStatus || m.status === filterStatus;
     return matchSearch && matchStage && matchGroup && matchStatus;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'name_asc': return a.name.localeCompare(b.name, 'zh');
+      case 'name_desc': return b.name.localeCompare(a.name, 'zh');
+      case 'stage_asc': return a.stage - b.stage;
+      case 'stage_desc': return b.stage - a.stage;
+      case 'joinDate_asc': return (a.joinDate || '').localeCompare(b.joinDate || '');
+      case 'joinDate_desc': return (b.joinDate || '').localeCompare(a.joinDate || '');
+      default: return 0;
+    }
   });
 
   const getGroup = (id) => groups.find(g => g.id === id);
 
-  const handleAddSubmit = () => {
+  const handleAddSubmit = async () => {
     if (!form.name.trim()) { setFormError('请填写姓名'); return; }
     if (!form.groupId) { setFormError('请选择所属小组'); return; }
-    addMember({
-      ...form,
-      name: form.name.trim(),
-      englishName: form.englishName.trim(),
-      school: form.school.trim(),
-      phone: form.phone.trim(),
-      email: form.email.trim(),
-      parentContact: form.parentContact.trim(),
-      groupId: Number(form.groupId),
-      stage: Number(form.stage),
-      baptizeDate: form.baptized ? form.baptizeDate || null : null,
-    });
-    setForm(EMPTY_FORM);
-    setFormError('');
-    setShowAddModal(false);
+    try {
+      await addMember({
+        ...form,
+        name: form.name.trim(),
+        englishName: form.englishName.trim(),
+        school: form.school.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        parentContact: form.parentContact.trim(),
+        groupId: Number(form.groupId),
+        stage: Number(form.stage),
+        baptizeDate: form.baptized ? form.baptizeDate || null : null,
+      });
+      setForm(EMPTY_FORM);
+      setFormError('');
+      setShowAddModal(false);
+      setSuccessMsg(`成员「${form.name.trim()}」已成功添加`);
+    } catch (err) {
+      setFormError('添加失败：' + err.message);
+    }
   };
 
-  const handleQuickNoteSubmit = () => {
+  const handleQuickNoteSubmit = async () => {
     if (!quickNoteForm.content.trim()) return;
-    addNote({ memberId: quickNote.id, authorId: user?.id || 0, type: quickNoteForm.type, content: quickNoteForm.content.trim() });
+    await addNote({ memberId: quickNote.id, authorId: user?.id || 0, type: quickNoteForm.type, content: quickNoteForm.content.trim() });
     setQuickNote(null);
     setQuickNoteForm({ type: '关怀谈话', content: '' });
   };
@@ -80,6 +108,12 @@ export default function MemberList() {
         {isPastor && <button className="btn btn-primary" onClick={() => { setShowAddModal(true); setForm(EMPTY_FORM); setFormError(''); }}>+ 新增成员</button>}
       </div>
 
+      {successMsg && (
+        <div style={{ padding: '10px 16px', borderRadius: 8, background: 'var(--color-success)', color: '#fff', fontSize: 13, marginBottom: 16 }}>
+          {successMsg}
+        </div>
+      )}
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <input className="form-input" placeholder="搜索姓名或学校…" value={search} onChange={e => setSearch(e.target.value)}
@@ -99,6 +133,14 @@ export default function MemberList() {
           <option value="活跃">活跃</option>
           <option value="不活跃">不活跃</option>
           <option value="已离开">已离开</option>
+        </select>
+        <select className="form-select" value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ width: 130 }}>
+          <option value="joinDate_desc">最新加入</option>
+          <option value="joinDate_asc">最早加入</option>
+          <option value="name_asc">姓名 A→Z</option>
+          <option value="name_desc">姓名 Z→A</option>
+          <option value="stage_desc">阶段（高→低）</option>
+          <option value="stage_asc">阶段（低→高）</option>
         </select>
       </div>
 
@@ -140,9 +182,13 @@ export default function MemberList() {
                   {!m.gdprConsent && <span style={{ fontSize: 11, color: 'var(--color-danger)', padding: '2px 8px', background: 'rgba(224,85,85,0.1)', borderRadius: 10 }}>
                     待签GDPR
                   </span>}
-                  {m.phone && <span style={{ fontSize: 11, color: 'var(--color-text-muted)', padding: '2px 8px', background: 'var(--color-bg-secondary)', borderRadius: 10 }}>
-                    {m.phone}
-                  </span>}
+                  {m.phone && (
+                    <span onClick={e => togglePhone(e, m.id)}
+                      style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-bg-secondary)', borderRadius: 10, cursor: 'pointer',
+                        color: revealedPhones.has(m.id) ? 'var(--color-text-secondary)' : 'var(--color-accent)' }}>
+                      {revealedPhones.has(m.id) ? m.phone : '查看电话'}
+                    </span>
+                  )}
                 </div>
                 {canAddNote && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>

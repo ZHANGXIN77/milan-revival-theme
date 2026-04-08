@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { STAGES } from '../data/mockData';
@@ -9,6 +9,7 @@ import Avatar from '../components/Avatar';
 function joinDuration(joinDate) {
   if (!joinDate) return null;
   const months = Math.floor((new Date() - new Date(joinDate)) / (30.44 * 86400000));
+  if (months < 1) return '不足一个月';
   const y = Math.floor(months / 12), m = months % 12;
   if (y > 0) return m > 0 ? `${y} 年 ${m} 个月` : `${y} 年`;
   return `${months} 个月`;
@@ -81,6 +82,21 @@ export default function YouthProfile() {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [meetings, member.groupId]);
 
+  // 成长任务进度
+  const completedTasks = useMemo(() => {
+    const progress = member.taskProgress || {};
+    return new Set(progress[member.stage] || []);
+  }, [member.taskProgress, member.stage]);
+
+  const toggleTask = useCallback(async (taskIndex) => {
+    const progress = member.taskProgress || {};
+    const stageTasks = new Set(progress[member.stage] || []);
+    if (stageTasks.has(taskIndex)) stageTasks.delete(taskIndex); else stageTasks.add(taskIndex);
+    await updateMember(member.id, { taskProgress: { ...progress, [member.stage]: Array.from(stageTasks) } });
+  }, [member.id, member.stage, member.taskProgress, updateMember]);
+
+  const allTasksDone = stage?.tasks && completedTasks.size >= stage.tasks.length;
+
   // 代祷事项（本组成员提交的公开代祷）
   const groupMemberIds = useMemo(() =>
     member.groupId ? members.filter(m => m.groupId === member.groupId).map(m => m.id) : [],
@@ -116,9 +132,9 @@ export default function YouthProfile() {
     setForm({ name: member.name || '', englishName: member.englishName || '', phone: member.phone || '', email: member.email || '', school: member.school || '', mbti: member.mbti || '' });
     setShowEdit(true);
   };
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateMember(member.id, {
+    await updateMember(member.id, {
       name: form.name.trim() || member.name,
       englishName: form.englishName.trim(),
       phone: form.phone.trim(),
@@ -189,21 +205,46 @@ export default function YouthProfile() {
 
         {/* 当前阶段任务 */}
         <div style={{ marginBottom: nextStage ? 14 : 0 }}>
-          <div style={{ fontSize: 12, color: stage?.color, fontWeight: 600, marginBottom: 8 }}>
-            {stage?.name} 阶段 — 当前目标
-          </div>
-          {stage?.tasks.map((task, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '7px 0', borderBottom: i < stage.tasks.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
-              <div style={{
-                width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                border: `2px solid ${stage.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: stage.bgColor,
-              }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: stage.color }} />
-              </div>
-              <span style={{ fontSize: 13, lineHeight: 1.5 }}>{task}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: stage?.color, fontWeight: 600 }}>
+              {stage?.name} 阶段 — 当前目标
             </div>
-          ))}
+            <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+              {completedTasks.size}/{stage?.tasks.length} 已完成
+            </div>
+          </div>
+          {/* 进度条 */}
+          <div style={{ height: 4, background: 'var(--color-bg-secondary)', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
+            <div style={{ height: '100%', borderRadius: 2, background: stage?.color, width: `${(completedTasks.size / (stage?.tasks.length || 1)) * 100}%`, transition: 'width 0.4s ease' }} />
+          </div>
+          {stage?.tasks.map((task, i) => {
+            const done = completedTasks.has(i);
+            return (
+              <div key={i} onClick={() => toggleTask(i)}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: i < stage.tasks.length - 1 ? '1px solid var(--color-border)' : 'none', cursor: 'pointer' }}>
+                <div style={{
+                  width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1,
+                  border: `2px solid ${stage.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: done ? stage.color : stage.bgColor,
+                  transition: 'all 0.2s',
+                }}>
+                  {done && (
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="2,6 5,9 10,3" />
+                    </svg>
+                  )}
+                  {!done && <div style={{ width: 6, height: 6, borderRadius: '50%', background: stage.color }} />}
+                </div>
+                <span style={{ fontSize: 13, lineHeight: 1.5, color: done ? 'var(--color-text-muted)' : 'var(--color-text-primary)', textDecoration: done ? 'line-through' : 'none', transition: 'all 0.2s' }}>{task}</span>
+              </div>
+            );
+          })}
+          {allTasksDone && (
+            <div style={{ marginTop: 12, padding: '10px 14px', background: `${stage.color}18`, border: `1px solid ${stage.color}40`, borderRadius: 'var(--radius-sm)' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: stage.color, marginBottom: 2 }}>你已完成本阶段所有目标！</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>请告诉你的小组长，请他为你做阶段晋升评估</div>
+            </div>
+          )}
         </div>
 
         {/* 下一阶段预览 */}

@@ -104,12 +104,3 @@ export const MEETINGS = [
   { id: 20, groupId: 5, date: '2026-04-25', time: '15:00', location: '方子豪家', address: 'Via Roma 20, Milano', theme: '如何传福音给朋友', notes: '实践分享环节' },
 ];
 
-// Current logged-in user mock
-export const CURRENT_USER = {
-  id: 0,
-  name: '何恩典',
-  email: 'pastor@milanorevival.com',
-  role: 'pastor', // 'pastor' | 'leader' | 'youth'
-  groupId: null,
-  avatar: null,
-};

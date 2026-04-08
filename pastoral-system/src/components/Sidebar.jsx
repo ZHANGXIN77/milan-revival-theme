@@ -25,6 +25,7 @@ const NAV_LEADER = [
 
 const NAV_YOUTH = [
   { path: '/profile', label: '我的主页' },
+  { path: '/meetings', label: '聚会安排' },
   { path: '/prayers', label: '代祷事项' },
 ];
 

@@ -1,93 +1,175 @@
-import { createContext, useContext, useState } from 'react';
-import { MEMBERS, GROUPS, ATTENDANCE, NOTES, PRAYER_REQUESTS, MEETINGS } from '../data/mockData';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from './AuthContext';
+import { apiFetch } from '../utils/api';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [members, setMembers] = useState(MEMBERS);
-  const [groups, setGroups] = useState(GROUPS);
-  const [attendance, setAttendance] = useState(ATTENDANCE);
-  const [notes, setNotes] = useState(NOTES);
-  const [prayers, setPrayers] = useState(PRAYER_REQUESTS);
-  const [meetings, setMeetings] = useState(MEETINGS);
+  const { credential, user } = useAuth();
 
-  const getMember = (id) => members.find(m => m.id === id);
-  const getGroup = (id) => groups.find(g => g.id === id);
-  const getMemberNotes = (memberId) => notes.filter(n => n.memberId === memberId).sort((a,b) => new Date(b.date) - new Date(a.date));
-  const getMembersByGroup = (groupId) => members.filter(m => m.groupId === groupId);
+  const [members,    setMembers]    = useState([]);
+  const [groups,     setGroups]     = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [notes,      setNotes]      = useState([]);
+  const [prayers,    setPrayers]    = useState([]);
+  const [meetings,   setMeetings]   = useState([]);
 
-  const addMember = (data) => {
-    const newId = members.reduce((max, m) => Math.max(max, m.id), 0) + 1;
-    const newMember = {
-      id: newId, avatar: null, englishName: '', isGroupLeader: false,
-      baptized: false, baptizeDate: null, mbti: null, gdprConsent: false,
-      status: '活跃', stage: 0,
-      ...data,
-    };
-    setMembers(prev => [...prev, newMember]);
-    return newMember;
-  };
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState(null);
 
-  const updateMember = (id, data) => {
-    setMembers(prev => prev.map(m => m.id === id ? { ...m, ...data } : m));
-  };
+  // 用 ref 追踪是否已加载，避免重复请求
+  const loaded = useRef(false);
 
-  const updateGroup = (id, data) => {
-    setGroups(prev => prev.map(g => g.id === id ? { ...g, ...data } : g));
-  };
+  // ── 初始化：登录后从服务端加载所有数据 ──────────────────────────────────────
+  useEffect(() => {
+    if (!credential || !user) {
+      // 登出时清空数据
+      setMembers([]); setGroups([]); setAttendance([]);
+      setNotes([]); setPrayers([]); setMeetings([]);
+      loaded.current = false;
+      return;
+    }
 
-  const addGroup = (data) => {
-    const newId = groups.reduce((max, g) => Math.max(max, g.id), 0) + 1;
-    const newGroup = { id: newId, leaderId: null, description: '', ...data };
-    setGroups(prev => [...prev, newGroup]);
-    return newGroup;
-  };
+    if (loaded.current) return;
 
-  const addNote = (note) => {
-    const newNote = { ...note, id: Date.now(), date: new Date().toISOString() };
-    setNotes(prev => [newNote, ...prev]);
-    return newNote;
-  };
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const isPastorOrLeader = user.role === 'pastor' || user.role === 'leader';
 
-  const recordAttendance = (date, records) => {
-    setAttendance(prev => {
-      const idx = prev.findIndex(a => a.date === date);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], records };
-        return updated;
+        const requests = [
+          isPastorOrLeader ? apiFetch('/groups',     'GET', null, credential) : Promise.resolve([]),
+          isPastorOrLeader ? apiFetch('/attendance', 'GET', null, credential) : Promise.resolve([]),
+          isPastorOrLeader ? apiFetch('/notes',      'GET', null, credential) : Promise.resolve([]),
+          apiFetch('/prayers',  'GET', null, credential),
+          apiFetch('/meetings', 'GET', null, credential),
+        ];
+
+        // 成员列表只有 pastor/leader 需要
+        if (isPastorOrLeader) {
+          requests.unshift(apiFetch('/members', 'GET', null, credential));
+        } else {
+          requests.unshift(Promise.resolve([]));
+        }
+
+        const [m, g, a, n, p, mt] = await Promise.all(requests);
+        setMembers(m);
+        setGroups(g);
+        setAttendance(a);
+        setNotes(n);
+        setPrayers(p);
+        setMeetings(mt);
+        loaded.current = true;
+      } catch (err) {
+        setError('数据加载失败：' + err.message);
+      } finally {
+        setLoading(false);
       }
-      return [{ id: Date.now(), date, records }, ...prev];
-    });
-  };
+    };
 
-  const addPrayer = (prayer) => {
-    const newPrayer = { authorId: 0, ...prayer, id: Date.now(), date: new Date().toISOString().split('T')[0] };
-    setPrayers(prev => [newPrayer, ...prev]);
-  };
+    load();
+  }, [credential, user]);
 
-  const updatePrayer = (id, data) => {
-    setPrayers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  };
+  // ── 工具函数 ──────────────────────────────────────────────────────────────
+  const getMember         = useCallback((id) => members.find(m => m.id === id), [members]);
+  const getGroup          = useCallback((id) => groups.find(g => g.id === id), [groups]);
+  const getMemberNotes    = useCallback((memberId) =>
+    notes.filter(n => n.memberId === memberId).sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [notes]
+  );
+  const getMembersByGroup = useCallback((groupId) =>
+    members.filter(m => m.groupId === groupId),
+    [members]
+  );
 
-  const addMeeting = (data) => {
-    const newId = meetings.reduce((max, m) => Math.max(max, m.id), 0) + 1;
-    setMeetings(prev => [...prev, { id: newId, notes: '', ...data }]);
-  };
+  // ── 成员操作 ──────────────────────────────────────────────────────────────
+  const addMember = useCallback(async (data) => {
+    const result = await apiFetch('/members', 'POST', data, credential);
+    setMembers(prev => [...prev, result]);
+    return result;
+  }, [credential]);
 
-  const updateMeeting = (id, data) => {
-    setMeetings(prev => prev.map(m => m.id === id ? { ...m, ...data } : m));
-  };
+  const updateMember = useCallback(async (id, data) => {
+    const result = await apiFetch(`/members/${id}`, 'PUT', data, credential);
+    setMembers(prev => prev.map(m => m.id === id ? result : m));
+    return result;
+  }, [credential]);
 
-  const deleteMeeting = (id) => {
+  // ── 小组操作 ──────────────────────────────────────────────────────────────
+  const addGroup = useCallback(async (data) => {
+    const result = await apiFetch('/groups', 'POST', data, credential);
+    setGroups(prev => [...prev, result]);
+    return result;
+  }, [credential]);
+
+  const updateGroup = useCallback(async (id, data) => {
+    const result = await apiFetch(`/groups/${id}`, 'PUT', data, credential);
+    setGroups(prev => prev.map(g => g.id === id ? result : g));
+    return result;
+  }, [credential]);
+
+  // ── 出席操作 ──────────────────────────────────────────────────────────────
+  const recordAttendance = useCallback(async (date, records) => {
+    await apiFetch('/attendance', 'POST', { date, records }, credential);
+    // 重新拉取出席记录（保证顺序一致）
+    const updated = await apiFetch('/attendance', 'GET', null, credential);
+    setAttendance(updated);
+  }, [credential]);
+
+  // ── 笔记操作 ──────────────────────────────────────────────────────────────
+  const addNote = useCallback(async (note) => {
+    const result = await apiFetch('/notes', 'POST', note, credential);
+    setNotes(prev => [result, ...prev]);
+    return result;
+  }, [credential]);
+
+  // ── 代祷操作 ──────────────────────────────────────────────────────────────
+  const addPrayer = useCallback(async (prayer) => {
+    const result = await apiFetch('/prayers', 'POST', prayer, credential);
+    setPrayers(prev => [result, ...prev]);
+  }, [credential]);
+
+  const updatePrayer = useCallback(async (id, data) => {
+    const result = await apiFetch(`/prayers/${id}`, 'PUT', data, credential);
+    setPrayers(prev => prev.map(p => p.id === id ? result : p));
+  }, [credential]);
+
+  const deletePrayer = useCallback(async (id) => {
+    await apiFetch(`/prayers/${id}`, 'DELETE', null, credential);
+    setPrayers(prev => prev.filter(p => p.id !== id));
+  }, [credential]);
+
+  // ── 会议操作 ──────────────────────────────────────────────────────────────
+  const addMeeting = useCallback(async (data) => {
+    const result = await apiFetch('/meetings', 'POST', data, credential);
+    setMeetings(prev => [...prev, result]);
+  }, [credential]);
+
+  const updateMeeting = useCallback(async (id, data) => {
+    const result = await apiFetch(`/meetings/${id}`, 'PUT', data, credential);
+    setMeetings(prev => prev.map(m => m.id === id ? result : m));
+  }, [credential]);
+
+  const deleteMeeting = useCallback(async (id) => {
+    await apiFetch(`/meetings/${id}`, 'DELETE', null, credential);
     setMeetings(prev => prev.filter(m => m.id !== id));
-  };
+  }, [credential]);
 
   return (
     <AppContext.Provider value={{
+      // 数据
       members, groups, attendance, notes, prayers, meetings,
+      // 状态
+      loading, error,
+      // 查询
       getMember, getGroup, getMemberNotes, getMembersByGroup,
-      addMember, updateMember, addGroup, updateGroup, addNote, recordAttendance, addPrayer, updatePrayer,
+      // 变更
+      addMember, updateMember,
+      addGroup, updateGroup,
+      addNote,
+      recordAttendance,
+      addPrayer, updatePrayer, deletePrayer,
       addMeeting, updateMeeting, deleteMeeting,
     }}>
       {children}

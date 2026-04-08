@@ -1,28 +1,36 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import MemberList from './pages/MemberList';
-import MemberProfile from './pages/MemberProfile';
-import Attendance from './pages/Attendance';
-import PrayerRequests from './pages/PrayerRequests';
-import GroupManagement from './pages/GroupManagement';
-import YouthProfile from './pages/YouthProfile';
-import Meetings from './pages/Meetings';
-import UserManagement from './pages/UserManagement';
+
+// 按路由懒加载，减少首屏体积，不同角色只加载自己需要的页面
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const MemberList = lazy(() => import('./pages/MemberList'));
+const MemberProfile = lazy(() => import('./pages/MemberProfile'));
+const Attendance = lazy(() => import('./pages/Attendance'));
+const PrayerRequests = lazy(() => import('./pages/PrayerRequests'));
+const GroupManagement = lazy(() => import('./pages/GroupManagement'));
+const YouthProfile = lazy(() => import('./pages/YouthProfile'));
+const Meetings = lazy(() => import('./pages/Meetings'));
+const UserManagement = lazy(() => import('./pages/UserManagement'));
+
+function PageLoader() {
+  return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}><span className="spinner" /></div>;
+}
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to={user.role === 'youth' ? '/profile' : '/dashboard'} replace />;
   return children;
 }
 
 function AppRoutes() {
   const { user } = useAuth();
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/login" element={user ? <Navigate to={user.role === 'youth' ? '/profile' : '/dashboard'} /> : <Login />} />
       <Route path="/" element={<Navigate to={user ? (user.role === 'youth' ? '/profile' : '/dashboard') : '/login'} replace />} />
@@ -58,7 +66,7 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       <Route path="/meetings" element={
-        <ProtectedRoute allowedRoles={['pastor', 'leader']}>
+        <ProtectedRoute allowedRoles={['pastor', 'leader', 'youth']}>
           <Layout><Meetings /></Layout>
         </ProtectedRoute>
       } />
@@ -73,6 +81,7 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
     </Routes>
+    </Suspense>
   );
 }
 
