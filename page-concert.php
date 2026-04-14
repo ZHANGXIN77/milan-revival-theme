@@ -290,6 +290,27 @@ get_header();
   .cw .cw-wrap { padding: 60px 20px; }
   .cw .acard { padding: 32px 24px; }
   .cw .form-box iframe { height: 760px; }
+
+  /* Mobile font boost — 提升手机阅读体验 */
+  .cw .cw-hero-sub { font-size: 17px; line-height: 1.7; }
+  .cw .cw-hero-meta { font-size: 14px; }
+  .cw .icard-lbl { font-size: 12px; }
+  .cw .icard-val { font-size: 17px; line-height: 1.7; }
+  .cw .icard-small { font-size: 13px; }
+  .cw .acard-bio { font-size: 16px; line-height: 1.95; }
+  .cw .acard-en { font-size: 12px; }
+  .cw .ttime { font-size: 13px; }
+  .cw .tcontent { font-size: 17px; line-height: 1.75; }
+  .cw .titem.hl .tcontent { font-size: 18px; }
+  .cw .d-sub { font-size: 17px; line-height: 2; }
+  .cw .ccard-name { font-size: 17px; }
+  .cw .ccard-time { font-size: 14px; }
+  .cw .ccard-addr { font-size: 14px; line-height: 1.7; }
+  .cw .ccard-person { font-size: 15px; }
+  .cw .ccard-phone { font-size: 14px; }
+  .cw .ccard-map { font-size: 12px; }
+  .cw .form-note { font-size: 13px; }
+  .cw .cw-back-bar a { font-size: 14px; }
 }
 @media (max-width: 560px) {
   .cw .church-grid { grid-template-columns: 1fr; }
@@ -297,8 +318,10 @@ get_header();
 @media (max-width: 480px) {
   .cw .cw-info-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .cw .icard { padding: 18px 14px; }
+  .cw .icard-val { font-size: 16px; }
   .cw .timeline { padding-left: 20px; }
   .cw .titem { padding-left: 22px; }
+  .cw .tcontent { font-size: 16px; }
 }
 </style>
 
@@ -435,10 +458,9 @@ get_header();
         请填写以下表单，我们的同工将与您联系、<br>陪伴您继续这段信仰旅程。
       </p>
       <div class="form-box">
-        <!-- 请将下方两处 GOOGLE_FORM_URL_HERE 替换为 Google 表单嵌入链接 -->
-        <iframe src="GOOGLE_FORM_URL_HERE" title="决志卡表单" loading="lazy">正在加载表单…</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform?embedded=true" title="决志卡表单" loading="lazy">正在加载表单…</iframe>
         <div class="form-note">
-          如表单无法显示，请<a href="GOOGLE_FORM_URL_HERE" target="_blank" rel="noopener">点击此处直接填写</a>
+          如表单无法显示，请<a href="https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform" target="_blank" rel="noopener">点击此处直接填写</a>
         </div>
       </div>
     </div>
