@@ -231,15 +231,56 @@ get_header();
   max-width: 680px; margin: 0 auto;
   border: 1px solid rgba(201,160,80,.22);
   background: rgba(201,160,80,.03); overflow: hidden;
+  transition: border-color .35s, background .35s;
 }
 .cw .form-box iframe { display: block; width: 100%; height: 620px; border: none; }
-.cw .form-note {
-  padding: 18px 24px; text-align: center;
-  font-size: 12px; color: var(--cw-text3);
-  border-top: 1px solid rgba(201,160,80,.1);
+
+/* CTA 引导态 */
+.cw .form-cta {
+  padding: 64px 28px 56px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 20px; text-align: center;
 }
-.cw .form-note a { color: var(--cw-gold); text-decoration: none; }
-.cw .form-note a:hover { text-decoration: underline; }
+.cw .form-cta-icon {
+  color: var(--cw-gold); opacity: .88;
+  animation: cw-heart 2.6s ease-in-out infinite;
+}
+@keyframes cw-heart {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.cw .form-cta-lead {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px; color: var(--cw-text1);
+  letter-spacing: .1em; margin: 0;
+}
+.cw .form-cta-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 16px 38px;
+  background: var(--cw-gold); color: #0d0d0d;
+  border: none; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  letter-spacing: .12em;
+  box-shadow: 0 8px 28px rgba(201,160,80,.22);
+  transition: background .25s, transform .25s, box-shadow .25s;
+}
+.cw .form-cta-btn:hover {
+  background: var(--cw-gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(201,160,80,.38);
+}
+.cw .form-cta-btn svg { transition: transform .25s; }
+.cw .form-cta-btn:hover svg { transform: translateX(4px); }
+.cw .form-cta-alt {
+  font-size: 12px; color: var(--cw-text3);
+  text-decoration: none; letter-spacing: .08em;
+  margin-top: 2px; transition: color .25s;
+}
+.cw .form-cta-alt:hover { color: var(--cw-gold); }
+
+/* 展开态 */
+.cw .form-box.is-open { background: rgba(201,160,80,.04); }
+.cw .form-box.is-open .form-cta { display: none; }
 
 /* ── Churches ── */
 .cw .cw-churches-bg { background: var(--cw-bg1); }
@@ -310,7 +351,10 @@ get_header();
   .cw .ccard-person { font-size: 15px; }
   .cw .ccard-phone { font-size: 14px; }
   .cw .ccard-map { font-size: 12px; }
-  .cw .form-note { font-size: 13px; }
+  .cw .form-cta { padding: 48px 22px 44px; gap: 18px; }
+  .cw .form-cta-lead { font-size: 17px; }
+  .cw .form-cta-btn { padding: 15px 30px; font-size: 15px; width: 100%; max-width: 300px; justify-content: center; }
+  .cw .form-cta-alt { font-size: 13px; }
   .cw .cw-back-bar a { font-size: 14px; }
 }
 @media (max-width: 560px) {
@@ -458,11 +502,24 @@ get_header();
         如果今晚您愿意做出生命中最重要的决定，<br>
         请填写以下表单，我们的同工将与您联系、<br>陪伴您继续这段信仰旅程。
       </p>
-      <div class="form-box">
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform?embedded=true" title="决志卡表单" loading="lazy">正在加载表单…</iframe>
-        <div class="form-note">
-          如表单无法显示，请<a href="https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform" target="_blank" rel="noopener">点击此处直接填写</a>
+      <div class="form-box" id="decisionFormBox">
+        <div class="form-cta" id="decisionFormCta">
+          <div class="form-cta-icon" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <p class="form-cta-lead">准备好了吗？</p>
+          <button type="button" class="form-cta-btn" id="openFormBtn" aria-controls="decisionFormIframe">
+            <span>我愿意填写决志卡</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform" target="_blank" rel="noopener" class="form-cta-alt">或在新窗口打开填写</a>
         </div>
+        <iframe id="decisionFormIframe" title="决志卡表单" hidden></iframe>
       </div>
     </div>
   </div>
@@ -588,6 +645,23 @@ get_header();
     });
   }, { threshold: 0.05 });
   document.querySelectorAll('.cw .timeline').forEach(function(el){ tlObs.observe(el); });
+
+  // 决志卡 —— 点击后才加载表单
+  var openBtn = document.getElementById('openFormBtn');
+  if (openBtn) {
+    openBtn.addEventListener('click', function(){
+      var box = document.getElementById('decisionFormBox');
+      var iframe = document.getElementById('decisionFormIframe');
+      if (!iframe.src) {
+        iframe.src = 'https://docs.google.com/forms/d/e/1FAIpQLSe5oeB0LYRdtTcBojnjQIvHeD4hCF07N6n0wgd2F6RXsKmwKw/viewform?embedded=true';
+      }
+      iframe.removeAttribute('hidden');
+      box.classList.add('is-open');
+      setTimeout(function(){
+        iframe.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    });
+  }
 })();
 </script>
 
