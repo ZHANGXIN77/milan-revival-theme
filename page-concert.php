@@ -36,8 +36,9 @@ get_header();
   margin-top: -80px; /* pull up under WP fixed header */
 }
 .cw .cw-hero-img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  position: absolute;
+  top: 80px; left: 0; right: 0; bottom: 0;
+  width: 100%; height: calc(100% - 80px);
   object-fit: cover; object-position: top center;
   opacity: .7;
 }
